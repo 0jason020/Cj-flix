@@ -3,8 +3,19 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import useSWR from "swr";
 import { TMDBMovie, TMDBTVShow } from "@/lib/types";
 import WatchlistButton from "@/components/watchlist/WatchlistButton";
+
+type ReleaseQualityResponse = { quality: "HD" | "CAM" };
+
+const fetchReleaseQuality = async (url: string): Promise<ReleaseQualityResponse> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    return { quality: "CAM" };
+  }
+  return res.json();
+};
 
 // Type guard function using a reliable discriminant
 function isTVShow(item: TMDBMovie | TMDBTVShow): item is TMDBTVShow {
@@ -25,6 +36,14 @@ const MediaCard: React.FC<MediaCardProps> = ({
   const isTV = isTVShow(media);
   const href = isTV ? `/series/${media.id}` : `/movie/${media.id}`;
   const titleVal = isTV ? media.name : media.title;
+
+  const { data: qualityData } = useSWR<ReleaseQualityResponse>(
+    isTV ? null : `/api/movie/${media.id}/release-quality`,
+    fetchReleaseQuality,
+    { revalidateOnFocus: false, dedupingInterval: 3600_000 }
+  );
+
+  const qualityLabel = !isTV ? qualityData?.quality : undefined;
 
   const poster_path = media.poster_path
     ? `https://image.tmdb.org/t/p/w342/${media.poster_path}`
@@ -70,6 +89,19 @@ const MediaCard: React.FC<MediaCardProps> = ({
             className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
             unoptimized
           />
+
+          {/* US digital/physical release heuristic: HD vs CAM */}
+          {qualityLabel && (
+            <div
+              className={`absolute bottom-2 right-2 z-[22] rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-sm ${
+                qualityLabel === "HD"
+                  ? "border-emerald-500/45 bg-emerald-950/85 text-emerald-200"
+                  : "border-amber-600/45 bg-zinc-950/90 text-amber-100/95"
+              }`}
+            >
+              {qualityLabel}
+            </div>
+          )}
 
           {/* Premium overlay content */}
           <div className="absolute inset-0 z-20">

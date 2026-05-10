@@ -224,6 +224,25 @@ export interface TMDBSearchResponse {
   total_results: number
 }
 
+/** TMDB GET /movie/{id}/release_dates */
+export interface TMDBReleaseDateEntry {
+  certification?: string
+  iso_639_1?: string
+  note?: string
+  release_date?: string
+  type?: number
+}
+
+export interface TMDBCountryReleaseDates {
+  iso_3166_1: string
+  release_dates: TMDBReleaseDateEntry[]
+}
+
+export interface TMDBMovieReleaseDatesResponse {
+  id: number
+  results: TMDBCountryReleaseDates[]
+}
+
 // Watchlist types
 export interface WatchlistItem {
   id: number

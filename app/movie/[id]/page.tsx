@@ -26,26 +26,3 @@ export default async function MovieDetailPage({
 
   return <MovieInfo id={parsedId} />;
 }
-
-export default function MoviePage({ movie }) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Movie',
-    'name': movie.title,
-    'image': `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-    'description': movie.overview,
-    'datePublished': movie.release_date,
-  }
-
-  return (
-    <section>
-      {/* Add this script tag anywhere in your JSX */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <h1>{movie.title}</h1>
-      {/* ... rest of your page */}
-    </section>
-  )
-}

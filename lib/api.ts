@@ -8,6 +8,7 @@ import {
   TMDBTVDetail,
   TMDBSeasonDetail,
   TMDBEpisodeDetail,
+  TMDBMovieReleaseDatesResponse,
 } from "./types";
 
 // Support both legacy API_KEY and new ACCESS_TOKEN for backward compatibility
@@ -73,9 +74,9 @@ export async function fetchAPI<T = unknown>(
         headers: {
           ...getHeaders(), // Always include auth headers
           ...options.headers,
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'application/json',
-          'Connection': 'keep-alive',
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "application/json",
         },
       };
 
@@ -283,6 +284,24 @@ export const api = {
     return await fetchAPI<TMDBGenresResponse>(`${BASE_URL}/genre/movie/list`, {
       headers: getHeaders(),
     });
+  },
+
+  /** Release dates (includes US digital / physical types) */
+  async getMovieReleaseDates(
+    movieId: number
+  ): Promise<TMDBMovieReleaseDatesResponse> {
+    checkAccessToken();
+    if (!Number.isInteger(movieId) || movieId <= 0) {
+      throw new Error(
+        `Invalid movie ID: ${movieId}. ID must be a positive integer.`
+      );
+    }
+    return await fetchAPI<TMDBMovieReleaseDatesResponse>(
+      `${BASE_URL}/movie/${movieId}/release_dates`,
+      {
+        headers: getHeaders(),
+      }
+    );
   },
 
   // Discover with filters
