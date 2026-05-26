@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import MediaPoster from "../display/MediaPoster";
 import MediaMeta from "../info/MediaMeta";
 import MediaPlayer from "../display/MediaPlayer";
-import DidYouKnowSection from "../info/DidYouKnowSection";
 import { Genre, TMDBMovieDetail } from "@/lib/types";
 import { api } from "@/lib/api";
 import { InfoLoading } from "../loading/PageLoading";
@@ -156,8 +155,7 @@ const MovieInfo = ({ id }: MovieInfoProps) => {
 
         {/* Controls and Additional Info Grid */}
         <div className="max-w-6xl mx-auto">
-          {/* Did You Know Section - Full Width */}
-          <DidYouKnowSection title={title} movieData={MovieDetail} />
+          {/* Additional movie details can be added here */}
         </div>
       </div>
     </MediaDetailLayout>

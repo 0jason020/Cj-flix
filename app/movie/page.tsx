@@ -13,8 +13,8 @@ interface MovieDetailPageProps {
 export async function generateMetadata({ params }: MovieDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: `Watch Movie ${id} | Pifilms`,
-    description: `Stream movie ${id} on Pifilms. Find trending, top-rated, and new releases.`,
+    title: `Watch Movie ${id} | CJ FLIX`,
+    description: `Stream movie ${id} on CJ FLIX. Find trending, top-rated, and new releases.`,
   };
 }
 

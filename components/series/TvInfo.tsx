@@ -4,7 +4,6 @@ import MediaDetailLayout from "../layout/MediaDetailLayout";
 import MediaPoster from "../display/MediaPoster";
 import MediaMeta from "../info/MediaMeta";
 import SeasonDisplay from "./SeasonDisplay";
-import DidYouKnowSection from "../info/DidYouKnowSection";
 import { Genre, TMDBTVDetail } from "@/lib/types";
 import { InfoLoading } from "../loading/PageLoading";
 import { api } from "@/lib/api";
@@ -176,10 +175,8 @@ const TvInfo = ({ id }: TvInfoProps) => {
           </div>
         )}
 
-        {/* Did You Know Section - Full Width */}
-        <div className="max-w-6xl mx-auto">
-          <DidYouKnowSection title={title} movieData={tvDetail} />
-        </div>
+        {/* Additional series details can be added here */}
+        <div className="max-w-6xl mx-auto" />
       </div>
     </MediaDetailLayout>
   );

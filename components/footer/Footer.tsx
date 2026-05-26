@@ -6,7 +6,7 @@ import Logo from "../navbar/Logo";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-black/80 backdrop-blur-md border-t border-gray-800/50 shadow-2xl shadow-black/20 mt-auto">
+    <footer className="w-full bg-[#050505]/95 backdrop-blur-md border-t border-white/10 shadow-2xl shadow-black/30 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main Footer Content */}
         <div className="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0">
@@ -32,10 +32,10 @@ const Footer = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative footer-link group"
+                  className="relative text-gray-400 transition-colors duration-200 hover:text-white group"
                 >
                   {item.label}
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
               ))}
             </div>
@@ -47,7 +47,7 @@ const Footer = () => {
                 className="h-4 w-4 text-red-500 fill-current animate-pulse"
                 aria-hidden="true"
               />
-              <span>© {new Date().getFullYear()} Pifilms</span>
+              <span>© {new Date().getFullYear()}CJ FLIX</span>
             </div>
           </div>
 

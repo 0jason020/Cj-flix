@@ -93,13 +93,15 @@ const CategorySection = ({
 
   return (
     <div className="mb-12">
-      <SectionHeader className="mb-6">
-        <h2 className="text-2xl font-bold text-white">{title}</h2>
+      <SectionHeader className="mb-6 gap-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">{title}</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Browse the latest {mediaType === "movie" ? "movies" : "shows"}.
+          </p>
+        </div>
         <Link href={seeAllHref}>
-          <Button
-            variant="ghost"
-            className="text-theme-primary hover:text-theme-primary hover:bg-gray-700/20 transition-colors"
-          >
+          <Button variant="outline" size="sm" className="gap-2">
             See All <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </Link>
@@ -126,20 +128,20 @@ const CategorySection = ({
       ) : (
         <div className="relative section-hover">
           {/* Left Arrow Button with gradient background - Hidden on mobile, visible on desktop */}
-          <div className="absolute left-0 top-0 bottom-4 w-16 bg-gradient-to-r from-bg-black via-bg-black/80 to-transparent z-20 hidden md:block pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-4 w-16 bg-gradient-to-r from-black via-black/80 to-transparent z-20 hidden md:block pointer-events-none"></div>
           <button
             onClick={scrollLeft}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 opacity-0 hover:scale-110 chevron-btn-left border border-white/20"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/70 hover:bg-black/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 hover:scale-110 chevron-btn-left border border-white/20"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
 
           {/* Right Arrow Button with gradient background - Hidden on mobile, visible on desktop */}
-          <div className="absolute right-0 top-0 bottom-4 w-16 bg-gradient-to-l from-bg-black via-bg-black/80 to-transparent z-20 hidden md:block pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-4 w-16 bg-gradient-to-l from-black via-black/80 to-transparent z-20 hidden md:block pointer-events-none"></div>
           <button
             onClick={scrollRight}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 opacity-0 hover:scale-110 chevron-btn-right border border-white/20"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center w-10 h-10 bg-black/70 hover:bg-black/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 hover:scale-110 chevron-btn-right border border-white/20"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-5 h-5 text-white" />

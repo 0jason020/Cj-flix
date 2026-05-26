@@ -292,8 +292,8 @@ const Hero = () => {
             className="flex flex-wrap gap-3"
           >
             <Button
-              size="default"
-              className="bg-theme-primary hover:bg-light-primary text-black font-semibold px-6 py-2"
+              size="lg"
+              className="bg-primary text-white hover:bg-primary/90 px-6 py-2"
               onClick={handlePlay}
               aria-label={`Play ${title}`}
             >

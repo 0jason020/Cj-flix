@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 
 export const metadata = {
-  title: "Pifilms",
+  title: "CJ FLIX",
   description: "A films of Pima",
 };
 

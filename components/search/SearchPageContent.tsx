@@ -37,7 +37,7 @@ const AsyncResultsSection = ({
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               currentError
                 ? "bg-red-900/50 text-red-300 border border-red-700"
-                : "bg-theme-primary/20 text-theme-primary border border-theme-primary/30"
+                : "bg-primary/15 text-white border border-primary/30"
             }`}
           >
             {statusMessage}

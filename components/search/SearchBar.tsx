@@ -77,10 +77,10 @@ const SearchBar = ({
       <div className="relative max-w-xl w-full">
         {/* Search Container */}
         <div
-          className={`relative flex items-center bg-gradient-to-r from-black to-gray-900 rounded-xl border-2 transition-all duration-300 overflow-hidden backdrop-blur-lg ${
+          className={`relative flex items-center rounded-3xl border border-white/10 bg-black/70 shadow-[0_20px_80px_-50px_rgba(229,9,20,0.35)] transition-all duration-300 overflow-hidden backdrop-blur-xl ${
             isFocused
-              ? "border-primary shadow-lg shadow-primary/20 scale-105"
-              : "border-gray-700 hover:border-gray-600"
+              ? "ring-2 ring-primary/50 scale-105"
+              : "ring-0"
           }`}
         >
           {/* Search Icon */}
@@ -126,7 +126,7 @@ const SearchBar = ({
           <button
             type="button"
             aria-label="Search"
-            className="bg-theme-primary hover:bg-light-primary text-black font-bold px-5 py-5 transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-primary text-white font-bold px-5 py-4 transition-all duration-200 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleSearchClick}
             onMouseDown={handleButtonMouseDown}
             disabled={!searchValue.trim()}

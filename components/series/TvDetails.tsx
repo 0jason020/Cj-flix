@@ -23,7 +23,7 @@ const TvDetails = ({
 }: TvDetailsProps) => {
   return (
     <div className="text-white flex flex-col items-center sm:items-start w-full sm:w-3/5 ml-0 sm:ml-4 px-7 sm:px-5">
-      <p className="w-fit bg-light-primary  text-black px-2 font-bold text-sm rounded-sm mb-2">
+      <p className="w-fit bg-primary text-white px-2 font-bold text-sm rounded-sm mb-2">
         TV
       </p>
 
@@ -57,7 +57,7 @@ const TvDetails = ({
           return (
             <p
               key={item}
-              className="text-light-primary border border-light-primary px-3 rounded-full w-fit  my-1"
+              className="text-white border border-white/15 bg-white/5 px-3 rounded-full w-fit my-1"
             >
               {item}
             </p>

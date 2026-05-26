@@ -52,21 +52,21 @@ const WatchlistButton = ({
       case "compact":
         return `p-2 h-9 w-9 rounded-xl ${baseTransition} ${
           inWatchlist
-            ? "text-theme-primary bg-theme-primary/10 hover:bg-theme-primary/20 border border-theme-primary/30 backdrop-blur-md"
+            ? "text-white bg-primary/20 hover:bg-primary/30 border border-primary/30 backdrop-blur-md"
             : "text-white hover:bg-white/20 backdrop-blur-md border border-white/30"
         }`;
 
       case "hero":
         return `px-6 py-2 ${baseTransition} ${
           inWatchlist
-            ? "text-theme-primary bg-theme-primary/10 hover:bg-theme-primary/20 border border-theme-primary/30"
+            ? "text-white bg-primary/20 hover:bg-primary/30 border border-primary/30"
             : "text-white hover:bg-white/20 hover:text-black"
         }`;
 
       default:
         return `px-4 py-2 ${baseTransition} ${
           inWatchlist
-            ? "text-theme-primary bg-theme-primary/10 hover:bg-theme-primary/20 border border-theme-primary/30"
+            ? "text-white bg-primary/20 hover:bg-primary/30 border border-primary/30"
             : "text-white hover:bg-white/20 border border-white/30"
         }`;
     }

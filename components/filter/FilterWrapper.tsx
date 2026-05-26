@@ -252,7 +252,7 @@ const FilterWrapper= ({
             onClick={applyFilters}
             disabled={isApplying || !hasActiveFilters}
             size="sm"
-            className="bg-primary hover:bg-light-primary disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold smooth-transition transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold smooth-transition transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-50"
           >
             {isApplying ? (
               <span className="flex items-center gap-2">
@@ -372,12 +372,12 @@ const FilterWrapper= ({
               onClick={clearFilters}
               disabled={!hasActiveFilters}
               variant="outline"
-              className="group relative p-2.5 bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm border border-gray-600/50 text-gray-300 hover:from-red-900/20 hover:to-red-800/20 hover:border-red-500/60 hover:text-red-400 hover:shadow-lg hover:shadow-red-500/20 disabled:from-gray-800/40 disabled:to-gray-700/40 disabled:border-gray-700/30 disabled:text-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-110 disabled:hover:scale-100 rounded-lg overflow-hidden"
+              className="group relative p-2.5 border border-white/15 text-white bg-black/30 hover:bg-white/10 hover:border-primary/50 hover:text-white transition-all duration-300 transform hover:scale-105 disabled:bg-black/20 disabled:border-white/10 disabled:text-gray-500 disabled:cursor-not-allowed rounded-lg overflow-hidden"
               aria-label="Clear all filters"
               title="Clear all filters"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-red-400/0 group-hover:from-red-500/10 group-hover:to-red-400/10 transition-all duration-300" />
-              <X className="w-5 h-5 relative z-10 transition-transform duration-200 group-hover:rotate-90" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/0 group-hover:from-primary/10 group-hover:to-primary/10 transition-all duration-300" />
+              <X className="w-5 h-5 relative z-10 transition-transform duration-200 group-hover:-rotate-6" />
             </Button>
           </div>
         </div>

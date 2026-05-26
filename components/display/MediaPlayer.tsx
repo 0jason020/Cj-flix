@@ -69,7 +69,7 @@ const MediaPlayer = ({
         {/* Player Footer */}
         <div className="mt-4 text-center">
           <p className="text-gray-400 text-sm">
-            filmsing in high quality • Auto-adjusts to your connection
+            filmsare in  high quality.
           </p>
         </div>
       </div>

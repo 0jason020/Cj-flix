@@ -3,9 +3,9 @@ import PageTitle from "@/components/title/PageTitle";
 import WatchListClient from "@/components/watchlist/WatchListClient";
 
 export const metadata: Metadata = {
-  title: "Watchlist | Pifilms",
+  title: "Watchlist | CJ FLIX",
   description:
-    "Browse and manage your personal watchlist of movies and TV shows on Pifilms.",
+    "Browse and manage your personal watchlist of movies and TV shows on CJ FLIX.",
 };
 
 export default function WatchlistPage() {

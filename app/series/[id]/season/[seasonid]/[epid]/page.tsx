@@ -3,9 +3,9 @@ import EpisodeNotFound from "@/components/not-found/EpisodeNotFound";
 import EpisodeInfo from "@/components/series/EpisodeInfo";
 
 export const metadata: Metadata = {
-  title: "Episode | Pifilms",
+  title: "Episode | CJ FLIX",
   description:
-    "Watch and explore episode details, cast, crew, and more on Pifilms.",
+    "Watch and explore episode details, cast, crew, and more on CJ FLIX .",
 };
 
 interface EpisodeDetailsPageProps {

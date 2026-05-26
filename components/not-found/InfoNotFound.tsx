@@ -25,12 +25,12 @@ const InfoNotFound = ({ type = "movie" }: InfoNotFoundProps) => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-theme-primary text-black font-medium rounded-lg hover:bg-theme-primary/90 transition-colors"
+            className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors"
           >
             Go Back
           </Button>
           <Link href={type === "movie" ? "/movie" : "/tv"}>
-            <Button className="px-6 py-3 border border-gray-600 text-white font-medium rounded-lg bg-gray-400/20 hover:bg-gray-600/20 transition-colors">
+            <Button className="px-6 py-3 border border-white/15 text-white font-medium rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
               Browse {type === "movie" ? "Movies" : "TV Shows"}
             </Button>
           </Link>

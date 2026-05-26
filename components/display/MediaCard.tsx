@@ -92,13 +92,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
 
           {/* US digital/physical release heuristic: HD vs CAM */}
           {qualityLabel && (
-            <div
-              className={`absolute bottom-2 right-2 z-[22] rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-sm ${
-                qualityLabel === "HD"
-                  ? "border-emerald-500/45 bg-emerald-950/85 text-emerald-200"
-                  : "border-amber-600/45 bg-zinc-950/90 text-amber-100/95"
-              }`}
-            >
+            <div className={`absolute bottom-2 right-2 z-[22] rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-sm border-red-600/40 bg-black/70 text-red-200`}>
               {qualityLabel}
             </div>
           )}
@@ -108,10 +102,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
             {/* Rating badge */}
             {media.vote_average > 0 && (
               <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg border border-yellow-500/30">
-                  <span className="text-yellow-400 text-xs font-bold">
-                    ⭐ {media.vote_average.toFixed(1)}
-                  </span>
+                <div className="bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg border border-red-600/30">
+                  <span className="text-red-400 text-xs font-bold">⭐ {media.vote_average.toFixed(1)}</span>
                 </div>
               </div>
             )}
@@ -120,10 +112,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
             <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
               <div className="space-y-1">
                 {/* Media type badge */}
-                <div className="w-fit bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-md px-1 py-1 rounded-lg border border-blue-500/30">
-                  <span className="text-white text-xs uppercase tracking-wider">
-                    {isTV ? "Series" : "Movie"}
-                  </span>
+                <div className="w-fit bg-gradient-to-r from-red-600 to-red-400 backdrop-blur-md px-1 py-1 rounded-lg border border-red-500/30">
+                  <span className="text-white text-xs uppercase tracking-wider">{isTV ? "Series" : "Movie"}</span>
                 </div>
                 {/* Title */}
                 <div className="bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg border border-gray-600/30">
