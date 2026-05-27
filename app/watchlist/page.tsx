@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import PageTitle from "@/components/title/PageTitle";
-import WatchListClient from "@/components/watchlist/WatchListClient";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Watchlist | CJ FLIX",
@@ -9,16 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function WatchlistPage() {
-  return (
-    <div className="app-bg-enhanced mt-24">
-      <PageTitle
-        segments={[
-          { text: "My " },
-          { text: "Watch", isPrimary: true },
-          { text: "list" },
-        ]}
-      />
-      <WatchListClient />
-    </div>
-  );
+  redirect("/");
 }

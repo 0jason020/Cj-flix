@@ -27,7 +27,6 @@ const Footer = () => {
                 { href: "/", label: "Home" },
                 { href: "/movie", label: "Movies" },
                 { href: "/series", label: "Series" },
-                { href: "/watchlist", label: "Watchlist" },
               ].map((item) => (
                 <Link
                   key={item.href}

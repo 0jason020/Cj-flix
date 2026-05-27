@@ -13,8 +13,8 @@ interface MovieDetailPageProps {
 export async function generateMetadata({ params }: MovieDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
-    title: `Watch Movie ${id} | CJ FLIX`,
-    description: `Stream movie ${id} on CJ FLIX. Find trending, top-rated, and new releases.`,
+    title: `Watch Movie ${id} | ALLAN `,
+    description: `Stream movie ${id} on ALLAN. Find trending, top-rated, and new releases.`,
   };
 }
 
@@ -28,7 +28,7 @@ export default async function MovieDetailPage({ params }: MovieDetailPageProps) 
     '@context': 'https://schema.org',
     '@type': 'Movie',
     'name': `Movie ${id}`, 
-    'url': `https://pi-films.netlify.app/movie/${id}`,
+    'url': `https://cj-flix.netlify.app/movie/${id}`,
     // You can expand this once you fetch real movie data
   };
 

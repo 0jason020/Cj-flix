@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { TMDBMovie, TMDBTVShow } from "@/lib/types";
 import { api } from "@/lib/api";
-import WatchlistButton from "@/components/watchlist/WatchlistButton";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, PlayIcon } from "lucide-react";
 import { PageLoading } from "../loading/PageLoading";
@@ -300,8 +299,6 @@ const Hero = () => {
               <Play className="mr-2 h-4 w-4" />
               Play
             </Button>
-
-            <WatchlistButton media={currentSlide} variant="hero" />
           </motion.div>
         </motion.div>
       </div>

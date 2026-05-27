@@ -18,7 +18,6 @@ const Header = () => {
                 { href: "/", label: "Home" },
                 { href: "/movie", label: "Movies" },
                 { href: "/series", label: "Series" },
-                { href: "/watchlist", label: "My List" },
               ].map((item) => (
                 <li key={item.href} className="relative group">
                   <Link href={item.href} className="py-2 px-1 block text-sm text-white hover:text-primary transition-colors">
@@ -36,12 +35,6 @@ const Header = () => {
             <div className="p-2 rounded hover:bg-white/5 transition-all duration-200">
               <BiSearch className="text-lg text-white hover:text-primary transition-colors" />
             </div>
-          </Link>
-
-          <Link href="/auth/signin" className="hidden md:inline-block">
-            <button className="px-4 py-1 rounded text-white bg-transparent hover:bg-primary/10 border border-white/10 transition">
-              Sign In
-            </button>
           </Link>
 
           {/* Mobile Hamburger Button */}

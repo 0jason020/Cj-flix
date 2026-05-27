@@ -7,7 +7,6 @@ import {
   Tv,
   Film,
 } from "lucide-react";
-import WatchlistButton from "@/components/watchlist/WatchlistButton";
 import { TMDBMovie, TMDBTVShow } from "@/lib/types";
 
 interface MediaMetaProps {
@@ -22,8 +21,6 @@ interface MediaMetaProps {
   genres: string[];
   overview?: string;
   className?: string;
-  // Media data for watchlist functionality
-  media: TMDBMovie | TMDBTVShow;
 }
 
 /**
@@ -41,7 +38,6 @@ const MediaMeta= ({
   episodes,
   genres,
   overview,
-  media,
   className = "",
 }: MediaMetaProps) => {
   return (
@@ -57,8 +53,6 @@ const MediaMeta= ({
               {type === "movie" ? <Film className="w-4 h-4" /> : <Tv className="w-4 h-4" />}
               {type === "movie" ? "Movie" : "TV Series"}
             </span>
-
-            <WatchlistButton media={media} variant="default" />
           </div>
 
           <div className="space-y-3">
