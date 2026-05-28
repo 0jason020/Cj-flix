@@ -1,18 +1,19 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
+import { createPageMetadata } from "@/lib/seo";
 import PageTitle from "@/components/title/PageTitle";
 import SearchPageContent from "@/components/search/SearchPageContent";
-import {PageLoading} from "@/components/loading/PageLoading";
+import { PageLoading } from "@/components/loading/PageLoading";
 
-export const metadata: Metadata = {
-  title: "Search | CJ FLIX",
-  description:
-    "Browse all movies and tv shows currently available on CJ FLIX. Find trending, top-rated, and new releases.",
-};
+export const metadata: Metadata = createPageMetadata(
+  "Search",
+  "Search for your favorite movies and TV shows. Find trending, top-rated, and new releases on CJ FLIX.",
+  "/search"
+);
 
 export default function SearchPage() {
   return (
-    <div className="app-bg-enhanced mt-24">
+    <main className="app-bg-enhanced min-h-screen mt-24" role="main">
       <PageTitle
         segments={[
           { text: "Explore, Discover, and" },
@@ -22,6 +23,6 @@ export default function SearchPage() {
       <Suspense fallback={<PageLoading>Loading search...</PageLoading>}>
         <SearchPageContent />
       </Suspense>
-    </div>
+    </main>
   );
 }

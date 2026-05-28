@@ -85,6 +85,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+}
   
   /* Netflix-style smooth horizontal scrolling */
   .horizontal-scroll {
@@ -203,4 +204,3 @@
       outline-offset: 2px !important;
     }
   }
-}

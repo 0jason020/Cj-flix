@@ -1,33 +1,23 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
-import MovieInfo from "@/components/movie/MovieInfo"; // Using the component you mentioned earlier
-import { PageLoading } from "@/components/loading/PageLoading";
+import { createPageMetadata } from "@/lib/seo";
+import Suspense from "@/components/movie/MoviePageClient";
 
-interface MovieDetailPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+export async function generateMetadata(): Promise<Metadata> {
+  return createPageMetadata(
+    "Movies",
+    "Browse our extensive collection of movies. Filter by genre, rating, and release date.",
+    "/movie"
+  );
 }
 
-// 1. Dynamic Metadata (Fixes the SEO/Index issue)
-export async function generateMetadata({ params }: MovieDetailPageProps): Promise<Metadata> {
-  const { id } = await params;
-  return {
-    title: `Watch Movie ${id} | ALLAN `,
-    description: `Stream movie ${id} on ALLAN. Find trending, top-rated, and new releases.`,
-  };
-}
-
-export default async function MovieDetailPage({ params }: MovieDetailPageProps) {
-  // 2. Await the params (Required in Next.js 15+)
-  const { id } = await params;
-  const parsedId = parseInt(id, 10);
-
-  // 3. Schema.org JSON-LD (For Google Search "Rich Results")
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Movie',
-    'name': `Movie ${id}`, 
+export default async function MoviePage() {
+  return (
+    <main className="app-bg-enhanced min-h-screen pt-20" role="main">
+      <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+      </Suspense>
+    </main>
+  );
+} 
     'url': `https://cj-flix.netlify.app/movie/${id}`,
     // You can expand this once you fetch real movie data
   };

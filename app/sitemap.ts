@@ -1,30 +1,79 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://pi-films.netlify.app'
+  const baseUrl = 'https://cjflix.com'
+
+  // Static pages with SEO priority
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/movie`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/series`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/search`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/watchlist`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+  ]
+
+  // Fetch trending movies and series for dynamic URLs
+  let dynamicEntries: MetadataRoute.Sitemap = []
 
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.API_KEY}`
-    );
-    
-    if (!response.ok) throw new Error('API fetch failed');
+    const [moviesRes, seriesRes] = await Promise.all([
+      fetch(
+        `https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.API_KEY}`
+      ),
+      fetch(
+        `https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.API_KEY}`
+      ),
+    ])
 
-    const data = await response.json();
-    const movies = data.results || [];
+    if (moviesRes.ok) {
+      const movieData = await moviesRes.json()
+      const movies = movieData.results || []
+      const movieEntries = movies.slice(0, 50).map((movie: any) => ({
+        url: `${baseUrl}/movie/${movie.id}`,
+        lastModified: new Date(movie.updated_at || new Date()),
+        priority: 0.6,
+      }))
+      dynamicEntries.push(...movieEntries)
+    }
 
-    const movieEntries = movies.map((movie: any) => ({
-      url: `${baseUrl}/movie/${movie.id}`,
-      lastModified: new Date(),
-    }));
-
-    return [
-      { url: baseUrl, lastModified: new Date() },
-      ...movieEntries,
-    ];
+    if (seriesRes.ok) {
+      const seriesData = await seriesRes.json()
+      const series = seriesData.results || []
+      const seriesEntries = series.slice(0, 50).map((show: any) => ({
+        url: `${baseUrl}/series/${show.id}`,
+        lastModified: new Date(show.updated_at || new Date()),
+        priority: 0.6,
+      }))
+      dynamicEntries.push(...seriesEntries)
+    }
   } catch (error) {
-    // If something goes wrong, return JUST the homepage so the file exists!
-    console.error("Sitemap error:", error);
-    return [{ url: baseUrl, lastModified: new Date() }];
+    console.error('Sitemap generation error:', error)
   }
+
+  return [...staticPages, ...dynamicEntries]
 }

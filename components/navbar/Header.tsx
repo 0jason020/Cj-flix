@@ -4,26 +4,31 @@ import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 
 const Header = () => {
+  const navItems = [
+    { href: "/", label: "Home", title: "Explore all movies and series" },
+    { href: "/movie", label: "Movies", title: "Browse our movie collection" },
+    { href: "/series", label: "Series", title: "Browse our TV series collection" },
+  ];
+
   return (
-    <nav className="w-full fixed top-0 z-[100] bg-black/95 backdrop-blur-sm border-b border-black/40">
-      <div className="max-w-7xl flex items-center justify-between mx-auto px-4 sm:px-6 lg:px-8 h-16">
+    <header className="w-full fixed top-0 z-[100] bg-black/95 backdrop-blur-sm border-b border-white/10">
+      <nav className="max-w-7xl flex items-center justify-between mx-auto px-4 sm:px-6 lg:px-8 h-16" role="navigation" aria-label="Main navigation">
         <div className="flex items-center gap-6">
-          {/* logo */}
+          {/* Logo */}
           <Logo />
 
-          {/* Desktop Navigation Links (Netflix-style) */}
+          {/* Desktop Navigation Links */}
           <div className="hidden lg:block">
-            <ul className="list-none flex text-white space-x-6 text-sm font-medium">
-              {[
-                { href: "/", label: "Home" },
-                { href: "/movie", label: "Movies" },
-                { href: "/series", label: "Series" },
-              ].map((item) => (
-                <li key={item.href} className="relative group">
-                  <Link href={item.href} className="py-2 px-1 block text-sm text-white hover:text-primary transition-colors">
+            <ul className="list-none flex text-white space-x-8 text-sm font-medium">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link 
+                    href={item.href} 
+                    title={item.title}
+                    className="py-2 px-1 block text-white hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
                     {item.label}
                   </Link>
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </li>
               ))}
             </ul>
@@ -31,17 +36,20 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/search">
-            <div className="p-2 rounded hover:bg-white/5 transition-all duration-200">
-              <BiSearch className="text-lg text-white hover:text-primary transition-colors" />
-            </div>
+          <Link 
+            href="/search"
+            title="Search movies and series"
+            className="p-2 rounded hover:bg-white/5 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            aria-label="Search"
+          >
+            <BiSearch className="text-lg text-white hover:text-primary transition-colors" aria-hidden="true" />
           </Link>
 
-          {/* Mobile Hamburger Button */}
+          {/* Mobile Menu Button */}
           <MobileMenu />
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 
