@@ -19,14 +19,14 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="w-full bg-gradient-to-t from-black via-black/80 to-black/40 border-t border-white/10 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="mt-auto w-full border-t border-white/10 bg-[#070809]">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
           {/* Brand Section */}
           <div className="flex flex-col">
             <Logo />
-            <p className="text-gray-400 text-sm mt-4 leading-relaxed">
+            <p className="mt-5 max-w-sm text-sm leading-7 text-mist">
               Your ultimate destination for streaming movies and TV series. 
               Discover unlimited entertainment with our extensive collection.
             </p>
@@ -34,14 +34,14 @@ const Footer = () => {
 
           {/* Navigation Links */}
           <div className="flex flex-col">
-            <h3 className="text-white font-semibold text-sm mb-6 uppercase tracking-wide">Browse</h3>
+            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-ember">Browse</h3>
             <nav role="navigation" aria-label="Footer navigation">
               <ul className="space-y-3">
                 {navigationLinks.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm"
+                      className="text-sm text-mist transition-colors duration-200 hover:text-paper"
                     >
                       {item.label}
                     </Link>
@@ -53,14 +53,14 @@ const Footer = () => {
 
           {/* Legal & Info */}
           <div className="flex flex-col">
-            <h3 className="text-white font-semibold text-sm mb-6 uppercase tracking-wide">Legal</h3>
+            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-ember">Legal</h3>
             <nav role="navigation" aria-label="Legal navigation">
               <ul className="space-y-3">
                 {legalLinks.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-gray-400 hover:text-primary transition-colors duration-200 text-sm"
+                      className="text-sm text-mist transition-colors duration-200 hover:text-paper"
                     >
                       {item.label}
                     </Link>
@@ -75,10 +75,10 @@ const Footer = () => {
         <div className="border-t border-white/10 py-8">
           {/* Copyright & Credits */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
+            <div className="flex items-center gap-2 text-sm text-mist">
               <span>Made with</span>
               <Heart
-                className="h-4 w-4 text-red-500 fill-current"
+                className="h-4 w-4 fill-current text-ember"
                 aria-hidden="true"
               />
               <span>
@@ -86,7 +86,7 @@ const Footer = () => {
               </span>
             </div>
 
-            <div className="text-center sm:text-right text-gray-500 text-xs space-y-2">
+            <div className="space-y-2 text-center text-xs text-mist/70 sm:text-right">
               <p>Powered by TMDB API • Next.js • Tailwind CSS</p>
               <p>All content provided by The Movie Database (TMDB)</p>
             </div>

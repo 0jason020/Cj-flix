@@ -54,9 +54,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
   // Dynamic classes based on variant
   const getCardClasses = () => {
     const baseClasses =
-      "group relative rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1";
+      "group relative overflow-hidden rounded-md transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl";
     const premiumEffects =
-      "bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/80";
+      "border border-white/10 bg-[#111316] hover:border-ember/60";
 
     if (variant === "horizontal") {
       // For horizontal scrolling (CategorySection)
@@ -73,20 +73,20 @@ const MediaCard: React.FC<MediaCardProps> = ({
       <Link href={href} title={titleVal} className="group block w-full" onClick={handleCardClick}>
         <div className="aspect-[2/3] w-full relative overflow-hidden">
           {/* Premium image container with enhanced effects */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#090a0c] via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
           <Image
             src={poster_path}
             alt={`${titleVal} ${isTV ? "TV series" : "movie"} poster`}
             width={342}
             height={513}
-            className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+            className="h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
             unoptimized
           />
 
           {/* US digital/physical release heuristic: HD vs CAM */}
           {qualityLabel && (
-            <div className={`absolute bottom-2 right-2 z-[22] rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-lg backdrop-blur-sm border-red-600/40 bg-black/70 text-red-200`}>
+            <div className="absolute bottom-2 right-2 z-[22] rounded-sm border border-ember/40 bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ember-soft shadow-lg backdrop-blur-sm">
               {qualityLabel}
             </div>
           )}
@@ -95,7 +95,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
           <div className="absolute inset-0 z-20">
             {/* Icon badge shown on hover */}
             <div className="absolute top-3 left-1/2 z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/80 px-3 py-2 text-white text-xs font-semibold uppercase tracking-[0.18em] shadow-lg shadow-black/40">
+              <div className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-black/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-black/40">
                 <Play className="h-4 w-4" />
                 Play
               </div>
@@ -104,8 +104,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
             {/* Rating badge */}
             {media.vote_average > 0 && (
               <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg border border-red-600/30">
-                  <span className="text-red-400 text-xs font-bold">⭐ {media.vote_average.toFixed(1)}</span>
+                <div className="rounded-md border border-white/15 bg-black/80 px-2 py-1 backdrop-blur-md">
+                  <span className="text-xs font-bold text-ember-soft">★ {media.vote_average.toFixed(1)}</span>
                 </div>
               </div>
             )}
@@ -114,11 +114,11 @@ const MediaCard: React.FC<MediaCardProps> = ({
             <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
               <div className="space-y-1">
                 {/* Media type badge */}
-                <div className="w-fit bg-gradient-to-r from-red-600 to-red-400 backdrop-blur-md px-1 py-1 rounded-lg border border-red-500/30">
+                <div className="w-fit rounded-sm border border-ember/30 bg-ember px-1.5 py-1 backdrop-blur-md">
                   <span className="text-white text-xs uppercase tracking-wider">{isTV ? "Series" : "Movie"}</span>
                 </div>
                 {/* Title */}
-                <div className="bg-black/80 backdrop-blur-md px-2 py-1 rounded-lg border border-gray-600/30">
+                <div className="rounded-md border border-white/15 bg-black/80 px-2 py-1 backdrop-blur-md">
                   <h3 className="text-white text-xs font-semibold line-clamp-2 leading-tight">
                     {titleVal}
                   </h3>

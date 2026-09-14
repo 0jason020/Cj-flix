@@ -92,16 +92,16 @@ const CategorySection = ({
   }
 
   return (
-    <div className="mb-12">
+    <div className="mb-16">
       <SectionHeader className="mb-6 gap-6">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">{title}</h2>
-          <p className="text-sm text-gray-400 mt-1">
+          <h2 className="font-display text-3xl uppercase tracking-wide text-paper sm:text-4xl">{title}</h2>
+          <p className="mt-1 text-sm text-mist">
             Browse the latest {mediaType === "movie" ? "movies" : "shows"}.
           </p>
         </div>
         <Link href={seeAllHref}>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/15 text-xs uppercase tracking-[0.16em] hover:border-ember hover:bg-ember/10">
             See All <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </Link>
@@ -150,7 +150,7 @@ const CategorySection = ({
           {/* Scroll Container */}
           <div
             ref={scrollContainerRef}
-            className="flex space-x-3 sm:space-x-4 overflow-x-auto pb-4 scrollbar-hide horizontal-scroll touch-scroll pl-4 sm:pl-0"
+            className="flex space-x-3 overflow-x-auto pb-4 scrollbar-hide horizontal-scroll touch-scroll pl-1 sm:space-x-4"
           >
             {displayData.slice(0, 10).map((item) => (
               <div

@@ -1,15 +1,15 @@
 import Header from "@/components/navbar/Header";
 import "./globals.css";
 import "./clean.css";
-import { Inter, Poppins } from "next/font/google";
+import { Bebas_Neue, DM_Sans } from "next/font/google";
 import Footer from "@/components/footer/Footer";
 import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const poppins = Poppins({ weight: ["400", "500", "600", "700"], subsets: ["latin"], variable: "--font-poppins" });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
+const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
 
 export const metadata: Metadata = {
   title: "CJ FLIX | Stream Movies & TV Series Online",
@@ -74,7 +74,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={cn(inter.variable, poppins.variable)}>
+    <html lang="en" className={cn(dmSans.variable, bebas.variable)}>
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
       </head>
-      <body className={cn(inter.className, "app-bg-enhanced")}>
+      <body className={cn(dmSans.className, "app-bg-enhanced")}>
         <Header />
         {children}
         <Footer />

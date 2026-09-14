@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, PlayIcon } from "lucide-react";
 import { PageLoading } from "../loading/PageLoading";
+import WatchlistButton from "../watchlist/WatchlistButton";
 
 const Hero = () => {
   const [slides, setSlides] = useState<(TMDBMovie | TMDBTVShow)[]>([]);
@@ -223,7 +224,7 @@ const Hero = () => {
 
   return (
     <div
-      className="hero-carousel-focus relative h-screen w-full overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+      className="hero-carousel-focus relative h-[min(760px,92vh)] w-full overflow-hidden border-b border-white/10 bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}
@@ -254,12 +255,12 @@ const Hero = () => {
               e.currentTarget.src = "https://i.imgur.com/wjVuAGb.png";
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#090a0c] via-[#090a0c]/75 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#090a0c] via-transparent to-[#090a0c]/10" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 flex h-full items-center px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex h-full items-end px-5 pb-28 sm:px-8 sm:pb-32 lg:items-center lg:pb-0">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -270,19 +271,19 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4"
+            className="mb-5 max-w-xl font-display text-6xl uppercase leading-[0.88] tracking-wide text-paper sm:text-7xl lg:text-8xl"
           >
             {title}
           </motion.h1>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-lg sm:text-xl mb-8 line-clamp-3"
+            className="mb-8 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-paper/75 sm:text-sm"
           >
-            {currentSlide.overview}
-          </motion.p>
+            <span>{isTV ? "Series" : "Movie"}</span><span className="text-dashboard-accent">•</span><span>{isTV ? "TV" : "Feature"}</span><span className="text-dashboard-accent">•</span><span>{isTV ? "Popular" : "Cinema"}</span>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -292,29 +293,30 @@ const Hero = () => {
           >
             <Button
               size="lg"
-              className="bg-primary text-white hover:bg-primary/90 px-6 py-2"
+              className="rounded-xl bg-dashboard-accent px-6 py-3 text-white shadow-xl shadow-dashboard-accent/20 hover:bg-dashboard-accent-soft"
               onClick={handlePlay}
               aria-label={`Play ${title}`}
             >
               <Play className="mr-2 h-4 w-4" />
-              Play
+              Watch Trailer
             </Button>
+            <WatchlistButton media={currentSlide} variant="hero" className="rounded-xl border border-white/20 bg-white/[0.06] px-5 py-3 text-white hover:bg-white/10" />
           </motion.div>
         </motion.div>
       </div>
 
       {/* Slide indicators and pause/play control */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-20">
+      <div className="absolute bottom-8 left-5 z-20 flex items-center space-x-4 sm:left-8">
         {/* Slide dots */}
         <div className="flex space-x-2">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 focus:ring-offset-black ${
+              className={`h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ember focus:ring-offset-2 focus:ring-offset-black ${
                 index === currentIndex
-                  ? "bg-theme-primary"
-                  : "bg-white/50 hover:bg-white/70"
+                  ? "w-10 bg-ember"
+                  : "w-5 bg-white/40 hover:bg-white/70"
               }`}
               aria-label={`Go to slide ${index + 1}`}
               aria-current={index === currentIndex ? "true" : "false"}
@@ -326,7 +328,7 @@ const Hero = () => {
         {slides.length > 1 && (
           <button
             onClick={togglePause}
-            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 focus:ring-offset-black"
+            className="rounded-md border border-white/20 bg-black/40 p-2 text-white transition-all duration-200 hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-ember focus:ring-offset-2 focus:ring-offset-black"
             aria-label={isPaused ? "Resume slideshow" : "Pause slideshow"}
             aria-pressed={isPaused}
           >
@@ -341,7 +343,7 @@ const Hero = () => {
 
       {/* Pause indicator */}
       {isPaused && slides.length > 1 && (
-        <div className="absolute top-8 right-8 bg-black/50 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-2 z-20">
+        <div className="absolute right-5 top-24 z-20 flex items-center space-x-2 rounded-md border border-white/20 bg-black/50 px-3 py-1 text-sm text-white sm:right-8">
           <Pause className="h-3 w-3" />
           <span>Paused</span>
         </div>

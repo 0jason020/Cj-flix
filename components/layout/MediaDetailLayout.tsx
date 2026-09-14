@@ -15,14 +15,14 @@ const MediaDetailLayout = ({
 }: MediaDetailLayoutProps) => {
   return (
     <div
-      className={`relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black ${className}`}
+      className={`relative min-h-screen overflow-hidden bg-[#090a0c] ${className}`}
     >
       {/* Background overlay for better content readability */}
-      <div className="absolute inset-0 bg-black/20" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(230,107,61,0.10),transparent_32%)]" />
 
       {/* Main content container */}
-      <div className="relative z-10 container mx-auto px-4 py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto">{children}</div>
+      <div className="relative z-10 container mx-auto px-5 py-8 sm:px-8 lg:py-14">
+        <div className="mx-auto max-w-7xl">{children}</div>
       </div>
     </div>
   );

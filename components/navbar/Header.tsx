@@ -1,51 +1,52 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { BiSearch } from "react-icons/bi";
+import { Bell, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 
+const navItems = [
+  { href: "/movie", label: "Movies", title: "Browse our movie collection" },
+  { href: "/series", label: "Series", title: "Browse our TV series collection" },
+  { href: "/movie?category=popular", label: "Animation", title: "Browse popular animation" },
+  { href: "/movie", label: "Genres", title: "Explore movie genres" },
+];
+
 const Header = () => {
-  const navItems = [
-    { href: "/", label: "Home", title: "Explore all movies and series" },
-    { href: "/movie", label: "Movies", title: "Browse our movie collection" },
-    { href: "/series", label: "Series", title: "Browse our TV series collection" },
-  ];
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
-    <header className="w-full fixed top-0 z-[100] bg-black/95 backdrop-blur-sm border-b border-white/10">
-      <nav className="max-w-7xl flex items-center justify-between mx-auto px-4 sm:px-6 lg:px-8 h-16" role="navigation" aria-label="Main navigation">
-        <div className="flex items-center gap-6">
-          {/* Logo */}
+    <header className="fixed inset-x-0 top-0 z-[100] w-full border-b border-white/[0.07] bg-dashboard-bg/95 backdrop-blur-xl">
+      <nav className="mx-auto flex h-[4.5rem] max-w-[1500px] items-center justify-between px-5 sm:px-8" role="navigation" aria-label="Main navigation">
+        <div className="flex items-center gap-10">
           <Logo />
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:block">
-            <ul className="list-none flex text-white space-x-8 text-sm font-medium">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <Link 
-                    href={item.href} 
-                    title={item.title}
-                    className="py-2 px-1 block text-white hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="hidden list-none items-center gap-7 text-sm font-medium text-slate-400 lg:flex">
+            {navItems.map((item) => (
+              <li key={item.label}>
+                <Link href={item.href} title={item.title} className="block px-1 py-2 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dashboard-accent">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link 
-            href="/search"
-            title="Search movies and series"
-            className="p-2 rounded hover:bg-white/5 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label="Search"
-          >
-            <BiSearch className="text-lg text-white hover:text-primary transition-colors" aria-hidden="true" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/search" title="Search movies and series" aria-label="Search" className="rounded-xl border border-white/[0.08] p-2.5 text-slate-300 transition hover:border-dashboard-accent/60 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-accent">
+            <BiSearch className="text-lg" aria-hidden="true" />
           </Link>
-
-          {/* Mobile Menu Button */}
+          <Link href="/movie" className="hidden rounded-full bg-dashboard-accent px-4 py-2 text-xs font-bold text-white transition hover:bg-dashboard-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-accent sm:block">Subscribe</Link>
+          <button type="button" aria-label="Notifications" className="relative hidden rounded-xl border border-white/[0.08] p-2.5 text-slate-300 transition hover:border-dashboard-accent/60 hover:text-white sm:block">
+            <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-dashboard-accent ring-2 ring-dashboard-bg" aria-label="Unread notifications" />
+          </button>
+          <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} aria-label="Open profile menu" className="hidden items-center gap-2 rounded-xl p-1 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-accent sm:flex">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-dashboard-accent to-dashboard-accent-soft text-xs font-bold text-white">CJ</span>
+            <ChevronDown className={`h-4 w-4 text-slate-500 transition ${profileOpen ? "rotate-180" : ""}`} />
+          </button>
+          {profileOpen && <div className="absolute right-16 top-14 w-36 rounded-xl border border-white/[0.08] bg-dashboard-card p-2 shadow-2xl"><span className="block px-3 py-2 text-xs text-slate-400">Welcome back</span><Link href="/watchlist" className="block rounded-lg px-3 py-2 text-sm text-white hover:bg-white/[0.06]">Watchlist</Link></div>}
           <MobileMenu />
         </div>
       </nav>

@@ -1,5 +1,10 @@
 import type { MetadataRoute } from 'next'
 
+interface TrendingMedia {
+  id: number
+  updated_at?: string
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://cjflix.com'
 
@@ -38,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Fetch trending movies and series for dynamic URLs
-  let dynamicEntries: MetadataRoute.Sitemap = []
+  const dynamicEntries: MetadataRoute.Sitemap = []
 
   try {
     const [moviesRes, seriesRes] = await Promise.all([
@@ -51,9 +56,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ])
 
     if (moviesRes.ok) {
-      const movieData = await moviesRes.json()
+      const movieData = (await moviesRes.json()) as { results?: TrendingMedia[] }
       const movies = movieData.results || []
-      const movieEntries = movies.slice(0, 50).map((movie: any) => ({
+      const movieEntries = movies.slice(0, 50).map((movie) => ({
         url: `${baseUrl}/movie/${movie.id}`,
         lastModified: new Date(movie.updated_at || new Date()),
         priority: 0.6,
@@ -62,9 +67,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     if (seriesRes.ok) {
-      const seriesData = await seriesRes.json()
+      const seriesData = (await seriesRes.json()) as { results?: TrendingMedia[] }
       const series = seriesData.results || []
-      const seriesEntries = series.slice(0, 50).map((show: any) => ({
+      const seriesEntries = series.slice(0, 50).map((show) => ({
         url: `${baseUrl}/series/${show.id}`,
         lastModified: new Date(show.updated_at || new Date()),
         priority: 0.6,

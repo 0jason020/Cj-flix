@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { createPageMetadata } from "@/lib/seo";
-import Suspense from "@/components/movie/MoviePageClient";
+import MoviePageClient from "@/components/movie/MoviePageClient";
+import { Suspense } from "react";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPageMetadata(
@@ -13,27 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MoviePage() {
   return (
     <main className="app-bg-enhanced min-h-screen pt-20" role="main">
-      <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center text-gray-300">
+            Loading movies...
+          </div>
+        }
+      >
+        <MoviePageClient />
       </Suspense>
     </main>
-  );
-} 
-    'url': `https://cj-flix.netlify.app/movie/${id}`,
-    // You can expand this once you fetch real movie data
-  };
-
-  return (
-    <div className="app-bg-enhanced mt-24">
-      {/* Injecting JSON-LD into the head */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <Suspense fallback={<PageLoading>Loading movie details...</PageLoading>}>
-        {/* Pass the ID to your info component */}
-        <MovieInfo id={parsedId} />
-      </Suspense>
-    </div>
   );
 }

@@ -12,7 +12,7 @@ interface TvInfoProps {
   initialError?: boolean;
 }
 
-const TvInfo = ({ id, initialData, initialError }: TvInfoProps) => {
+const TvInfo = ({ initialData, initialError }: TvInfoProps) => {
   const tvDetail = initialData;
 
   // Defensive extraction with safe defaults
