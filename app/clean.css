@@ -1,11 +1,66 @@
 :root {
+  --bg-primary: #08090b;
+  --bg-secondary: #0d0f12;
+  --bg-card: rgba(255, 255, 255, 0.045);
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --accent: #e66b3d;
+  --accent-light: #ff8a5c;
+  --accent-dark: #b94d25;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(230, 107, 61, 0.45);
+
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --glow: 0 0 40px rgba(230, 107, 61, 0.15);
+
+  --radius: 18px;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* =========================
+   GLOBAL
+========================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(230, 107, 61, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(230, 107, 61, 0.05),
+      transparent 30%
+    ),
+    var(--bg-primary);
+
+  color: var(--text-primary);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
+
+/* =========================
+   HEADINGS
+========================= */
 
 h1,
 h2,
@@ -13,10 +68,273 @@ h3,
 h4,
 h5,
 h6 {
+  margin-top: 0;
   line-height: 1.1;
+  letter-spacing: -0.035em;
+  color: var(--text-primary);
 }
+
+h1 {
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  font-weight: 800;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 750;
+}
+
+/* =========================
+   TEXT
+========================= */
+
+p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+a:hover {
+  color: var(--accent-light);
+}
+
+/* =========================
+   SELECTION
+========================= */
 
 ::selection {
   color: #090a0c;
-  background: #e66b3d;
+  background: var(--accent);
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--accent),
+    var(--accent-dark)
+  );
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-light);
+}
+
+/* =========================
+   GLASS CARDS
+========================= */
+
+.glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow: var(--shadow);
+
+  transition: var(--transition-smooth);
+}
+
+.glass:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-5px);
+  box-shadow:
+    var(--shadow),
+    var(--glow);
+}
+
+/* =========================
+   GLOW TEXT
+========================= */
+
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    #ffffff 20%,
+    var(--accent-light) 55%,
+    var(--accent) 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 13px 24px;
+
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+
+  background: var(--accent);
+  color: #090a0c;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  background: var(--accent-light);
+
+  box-shadow:
+    0 10px 30px rgba(230, 107, 61, 0.25);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 13px 24px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+
+  font-weight: 600;
+
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  background: rgba(230, 107, 61, 0.08);
+  transform: translateY(-3px);
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+input,
+textarea,
+select {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 13px 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-primary);
+
+  outline: none;
+
+  transition: var(--transition-smooth);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(230, 107, 61, 0.1);
+}
+
+/* =========================
+   DIVIDERS
+========================= */
+
+.divider {
+  height: 1px;
+  width: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border),
+    transparent
+  );
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+  width: min(1200px, 90%);
+  margin-inline: auto;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(230, 107, 61, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 35px rgba(230, 107, 61, 0.2);
+  }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* =========================
+   REDUCED MOTION
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -55,31 +55,35 @@ export default function HotflixSeasonShowcase() {
       }));
 
   return (
-    <section className="mx-auto max-w-[1500px] px-4 pb-16 pt-8 sm:px-8 lg:px-10">
-      <div className="mb-8 flex items-center justify-between gap-6">
-        <h1 className="text-3xl font-light uppercase tracking-[-0.04em] text-white md:text-5xl lg:text-[4rem]">
-          New Items of This Season
-        </h1>
+    <section className="mx-auto max-w-[1500px] px-4 pb-20 pt-10 sm:px-8 lg:px-10">
+      <div className="mb-8 flex items-end justify-between gap-6">
+        <div>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.32em] text-dashboard-accent">Curated for tonight</p>
+          <h1 className="max-w-2xl text-4xl font-light uppercase leading-[0.92] tracking-[-0.045em] text-white md:text-6xl lg:text-[5.25rem]">
+            New on the big screen
+          </h1>
+        </div>
+        <p className="hidden max-w-[190px] pb-1 text-right text-xs leading-5 text-slate-500 md:block">Fresh stories, cult favorites, and the movies everyone is talking about.</p>
 
         <div className="hidden items-center gap-3 md:flex">
           <button
             type="button"
             aria-label="Previous items"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-dashboard-accent/60 hover:bg-dashboard-accent hover:text-dashboard-bg"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             type="button"
             aria-label="Next items"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-dashboard-accent/60 hover:bg-dashboard-accent hover:text-dashboard-bg"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-5">
         {displayItems.map((movie, index) => {
           const imageUrl = movie.backdrop_path
             ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`
@@ -87,7 +91,7 @@ export default function HotflixSeasonShowcase() {
 
           return (
             <article key={`${movie.id}-${index}`} className="group relative">
-              <div className="relative h-[470px] overflow-hidden rounded-[18px] border border-white/10 bg-[#101418] shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
+              <div className="relative h-[430px] overflow-hidden rounded-[14px] border border-white/10 bg-[#101418] shadow-[0_30px_60px_rgba(0,0,0,0.35)] transition duration-500 group-hover:-translate-y-2 group-hover:border-dashboard-accent/40 group-hover:shadow-[0_30px_70px_rgba(0,0,0,0.52)] md:h-[470px]">
                 <Image
                   src={imageUrl}
                   alt={movie.title}
@@ -98,7 +102,7 @@ export default function HotflixSeasonShowcase() {
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-black/5" />
 
-                <span className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[#4fd7a3] bg-black/40 text-sm font-semibold text-white shadow-[0_0_20px_rgba(79,215,163,0.7)] backdrop-blur-sm">
+                <span className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-dashboard-accent/80 bg-black/40 text-sm font-semibold text-dashboard-accent shadow-[0_0_20px_rgba(199,243,107,0.28)] backdrop-blur-sm">
                   {movie.vote_average.toFixed(1)}
                 </span>
 
