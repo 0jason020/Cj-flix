@@ -10,21 +10,21 @@
     --card-foreground: 48 32% 94%;
     --popover: 240 10% 9%;
     --popover-foreground: 48 32% 94%;
-    --primary: 76 82% 68%;
-    --primary-foreground: 240 12% 5%;
-    --theme-primary-rgb: 199,243,107;
-    --light-primary-rgb: 228,255,154;
+    --primary: 353 90% 47%;
+    --primary-foreground: 0 0% 100%;
+    --theme-primary-rgb: 229,9,36;
+    --light-primary-rgb: 255,48,71;
     --secondary: 240 8% 14%;
     --secondary-foreground: 48 32% 94%;
     --muted: 240 8% 14%;
     --muted-foreground: 240 5% 64%;
-    --accent: 14 89% 67%;
-    --accent-foreground: 240 12% 5%;
+    --accent: 353 90% 47%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
     --border: 240 7% 22%;
     --input: 240 7% 22%;
-    --ring: 76 82% 68%;
+    --ring: 353 90% 47%;
     --radius: 0.75rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -92,9 +92,8 @@
 
   .app-bg-enhanced {
     @apply min-h-screen text-white;
-    background-color: #0b0b0e;
-    background-image: radial-gradient(circle at 82% 0%, rgba(199,243,107,0.09), transparent 27%), radial-gradient(circle at 8% 38%, rgba(255,107,74,0.06), transparent 24%), linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-    background-size: auto, auto, 80px 80px, 80px 80px;
+    background-color: #08080a;
+    background-image: radial-gradient(circle at 82% 0%, rgba(229,9,36,0.08), transparent 30%), radial-gradient(circle at 8% 38%, rgba(255,255,255,0.02), transparent 28%);
     background-attachment: fixed;
   }
 
@@ -130,9 +129,9 @@
   }
 
   .row-button:hover {
-    border-color: rgba(199, 243, 107, 0.6);
-    background-color: #c7f36b;
-    color: #0b0b0e;
+    border-color: rgba(229, 9, 36, 0.6);
+    background-color: #e50924;
+    color: #ffffff;
   }
 
   .row-button-secondary {
@@ -162,7 +161,7 @@
   }
 
   .footer-link:hover {
-    color: #e66b3d;
+    color: #ff3047;
   }
   
   .smooth-transition {

@@ -54,9 +54,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
   // Dynamic classes based on variant
   const getCardClasses = () => {
     const baseClasses =
-      "group relative overflow-hidden rounded-md transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl";
+      "group relative overflow-hidden rounded-xl transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl";
     const premiumEffects =
-      "border border-white/10 bg-[#111316] hover:border-ember/60";
+      "border border-white/10 bg-dashboard-card hover:border-dashboard-accent/60";
 
     if (variant === "horizontal") {
       // For horizontal scrolling (CategorySection)
@@ -86,7 +86,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
 
           {/* US digital/physical release heuristic: HD vs CAM */}
           {qualityLabel && (
-            <div className="absolute bottom-2 right-2 z-[22] rounded-sm border border-ember/40 bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ember-soft shadow-lg backdrop-blur-sm">
+            <div className="absolute bottom-2 right-2 z-[22] rounded-md border border-dashboard-accent/40 bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-dashboard-accent shadow-lg backdrop-blur-sm">
               {qualityLabel}
             </div>
           )}
@@ -105,7 +105,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
             {media.vote_average > 0 && (
               <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                 <div className="rounded-md border border-white/15 bg-black/80 px-2 py-1 backdrop-blur-md">
-                  <span className="text-xs font-bold text-ember-soft">★ {media.vote_average.toFixed(1)}</span>
+                  <span className="text-xs font-bold text-dashboard-accent">★ {media.vote_average.toFixed(1)}</span>
                 </div>
               </div>
             )}
@@ -114,7 +114,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
             <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
               <div className="space-y-1">
                 {/* Media type badge */}
-                <div className="w-fit rounded-sm border border-ember/30 bg-ember px-1.5 py-1 backdrop-blur-md">
+                <div className="w-fit rounded-md border border-dashboard-accent/30 bg-dashboard-accent px-1.5 py-1 backdrop-blur-md">
                   <span className="text-white text-xs uppercase tracking-wider">{isTV ? "Series" : "Movie"}</span>
                 </div>
                 {/* Title */}

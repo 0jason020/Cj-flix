@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import MovieDisplay from "@/components/movie/MovieDisplay";
 import MediaFilter from "@/components/filter/MediaFilter";
 import { TMDBMovie } from "@/lib/types";
@@ -27,6 +27,7 @@ const MoviePageClient = () => {
   });
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Initialize from URL params
@@ -98,7 +99,10 @@ const MoviePageClient = () => {
     if (updatedFilters.sortBy !== "popularity.desc")
       params.set("sort", updatedFilters.sortBy);
 
-    const newURL = params.toString() ? `/movie?${params.toString()}` : "/movie";
+    const basePath = pathname || "/movie";
+    const newURL = params.toString()
+      ? `${basePath}?${params.toString()}`
+      : basePath;
     router.push(newURL, { scroll: false });
   };
 

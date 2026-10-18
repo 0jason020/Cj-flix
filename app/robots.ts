@@ -6,11 +6,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api", "/admin", "/.next"],
-      },
-      {
-        userAgent: "Googlebot",
-        allow: "/",
+        disallow: [
+          "/api",
+          "/admin",
+          "/watchlist",
+          "/my-list",
+          "/profile",
+          "/login",
+          "/register",
+          "/.next",
+        ],
       },
     ],
     sitemap: "https://cjflix.com/sitemap.xml",

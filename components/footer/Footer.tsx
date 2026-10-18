@@ -19,7 +19,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="mt-auto w-full border-t border-white/10 bg-[#070809]">
+    <footer className="mt-auto w-full border-t border-white/[0.08] bg-[#08080b]/80">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
         {/* Main Footer Content */}
         <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
@@ -34,7 +34,7 @@ const Footer = () => {
 
           {/* Navigation Links */}
           <div className="flex flex-col">
-            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-ember">Browse</h3>
+            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-dashboard-accent">Browse</h3>
             <nav role="navigation" aria-label="Footer navigation">
               <ul className="space-y-3">
                 {navigationLinks.map((item) => (
@@ -53,7 +53,7 @@ const Footer = () => {
 
           {/* Legal & Info */}
           <div className="flex flex-col">
-            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-ember">Legal</h3>
+            <h3 className="mb-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-dashboard-accent">Legal</h3>
             <nav role="navigation" aria-label="Legal navigation">
               <ul className="space-y-3">
                 {legalLinks.map((item) => (

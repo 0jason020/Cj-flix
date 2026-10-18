@@ -25,7 +25,7 @@ Pifilms is a dynamic and immersive movie and TV show discovery platform that bri
 - **❤️ Watchlist**: Save favorite movies and TV shows to local storage
 - **🔔 Error Handling**: Graceful error handling with toast notifications
 - **🎭 Category Sections**: Browse by Popular, Top Rated, Now Playing, and more with "See All" links
-- **🔒 Production Ready**: Secure API key handling, environment variable configuration
+- **🔒 Server-side TMDB credentials**: Browser requests use a same-origin server proxy
 
 ## Installation and Setup
 
@@ -51,10 +51,12 @@ npm install
 
    - Get your free TMDB API key from [https://www.themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
 
-   - Update `.env.local` with your API key:
+   - Update `.env.local` with one TMDB credential:
    ```plaintext
-   API_KEY=your_actual_API_KEY_here
+   TMDB_ACCESS_TOKEN=your_tmdb_v4_read_access_token
    ```
+
+   `API_KEY` (a TMDB v3 API key) is also supported for existing deployments.
 
 4. Run the development server:
 
@@ -82,8 +84,10 @@ npm run dev
 For production deployment, set the following environment variable on your hosting platform:
 
 ```plaintext
-API_KEY=your_actual_API_KEY_here
+TMDB_ACCESS_TOKEN=your_tmdb_v4_read_access_token
 ```
+
+The legacy `API_KEY` variable can be used instead. TMDB credentials are consumed by the server; do not add them to `next.config.js` or expose them using a `NEXT_PUBLIC_` variable.
 
 ### Recommended Platforms
 
@@ -104,8 +108,9 @@ API_KEY=your_actual_API_KEY_here
 
 ### Security Notes
 - Never commit API keys to version control
-- Use environment variables for all sensitive data
-- The API key is only used server-side for security
+- Use server-side environment variables for all sensitive data
+- Browser TMDB calls are restricted to an allow-listed, read-only same-origin proxy
+- The current watchlist is stored in the visitor's browser. This project does not yet include Supabase authentication, a database-backed catalogue, administrator authorization, or authorized playback sources; configure those before offering accounts or streaming
 
 ## Contributing
 

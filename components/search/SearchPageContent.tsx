@@ -11,7 +11,7 @@ import { PageLoading } from "../loading/PageLoading";
 
 type ContentSource = "search" | "filter" | "none";
 const MIN_SEARCH_LENGTH = 3;
-const SEARCH_DEBOUNCE_MS = 1000;
+const SEARCH_DEBOUNCE_MS = 400;
 
 interface AsyncResultsSectionProps {
   isLoading: boolean;
@@ -136,11 +136,14 @@ const SearchPageContent = () => {
    * Handle search functionality - completely independent of filters
    */
   useEffect(() => {
+    let isCurrentRequest = true;
+
     const performSearch = async () => {
       // Require minimum 3 characters before making API call
       if (debouncedSearchValue.trim().length < MIN_SEARCH_LENGTH) {
         setSearchResults([]);
         setSearchError(null);
+        setIsSearching(false);
         setActiveSource((prev) => (prev === "search" ? "none" : prev));
         setDisplayResults([]);
         return;
@@ -151,6 +154,8 @@ const SearchPageContent = () => {
 
       try {
         const result = await api.search(debouncedSearchValue);
+        if (!isCurrentRequest) return;
+
         setSearchResults(result.results);
         setActiveSource("search");
         setDisplayResults(result.results);
@@ -159,17 +164,25 @@ const SearchPageContent = () => {
           setSearchError(`No results found for "${debouncedSearchValue}"`);
         }
       } catch (error) {
+        if (!isCurrentRequest) return;
+
         console.error("Search failed:", error);
         setSearchError("Search failed. Please try again.");
         setSearchResults([]);
-        setActiveSource((prev) => (prev === "search" ? "none" : prev));
+        setActiveSource("search");
         setDisplayResults([]);
       } finally {
-        setIsSearching(false);
+        if (isCurrentRequest) {
+          setIsSearching(false);
+        }
       }
     };
 
     performSearch();
+
+    return () => {
+      isCurrentRequest = false;
+    };
   }, [debouncedSearchValue]);
 
   /**

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import TvDisplay from "@/components/series/TvDisplay";
 import MediaFilter from "@/components/filter/MediaFilter";
 import { TMDBTVShow } from "@/lib/types";
@@ -27,6 +27,7 @@ const SeriesPageClient = () => {
   });
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Initialize from URL params
@@ -98,9 +99,10 @@ const SeriesPageClient = () => {
     if (updatedFilters.sortBy !== "popularity.desc")
       params.set("sort", updatedFilters.sortBy);
 
+    const basePath = pathname || "/series";
     const newURL = params.toString()
-      ? `/series?${params.toString()}`
-      : "/series";
+      ? `${basePath}?${params.toString()}`
+      : basePath;
     router.push(newURL, { scroll: false });
   };
 

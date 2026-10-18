@@ -2,45 +2,70 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
   const toggleNavbar = () => setIsOpen((prev) => !prev);
+  const navItems = [
+    { href: "/", label: "Home" },
+    { href: "/movie", label: "Movies" },
+    { href: "/tv", label: "TV Shows" },
+    { href: "/movies", label: "Categories" },
+    { href: "/movie?category=upcoming", label: "Coming Soon" },
+    { href: "/search", label: "Search" },
+    { href: "/my-list", label: "My List" },
+  ];
 
   return (
     <>
-      {/* Hamburger Button */}
-      <div className="md:hidden ml-2">
+      <div className="ml-2 lg:hidden">
         <button
           onClick={toggleNavbar}
           type="button"
-          className="inline-flex items-center justify-center p-2 text-white hover:text-primary hover:bg-gray-800/50 rounded-lg transition-all duration-200 focus:outline-none"
+          className="inline-flex items-center justify-center rounded-lg p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-accent"
           aria-expanded={isOpen}
           aria-label="Toggle navigation menu"
+          aria-controls="mobile-navigation"
         >
-          {!isOpen ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isOpen && (
-        <div className="absolute top-16 left-0 w-full bg-black/95 backdrop-blur-md border-t border-gray-800/50 md:hidden">
-          <div className="px-4 py-3 space-y-2">
-            {[
-              { href: "/", label: "Home" },
-              { href: "/movie", label: "Movies" },
-              { href: "/series", label: "Series" },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block py-3 px-4 text-sm font-medium text-white hover:text-primary hover:bg-gray-800/50 rounded-lg transition-all duration-200"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+        <div
+          id="mobile-navigation"
+          className="absolute left-0 top-16 w-full border-t border-white/10 bg-[#0b0b0e]/95 px-4 py-3 shadow-2xl backdrop-blur-xl lg:hidden"
+        >
+          <nav aria-label="Mobile navigation">
+            <ul className="space-y-1">
+              {navItems.map((item) => {
+                const isActive =
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`);
+
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-accent ${
+                        isActive
+                          ? "bg-dashboard-accent/10 text-dashboard-accent"
+                          : "text-white hover:bg-white/10"
+                      }`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
         </div>
       )}
     </>

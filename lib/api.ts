@@ -15,6 +15,7 @@ import {
 const ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN;
 const API_KEY = process.env.API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
+const BASE_ORIGIN = new URL(BASE_URL).origin;
 
 // Validate environment configuration
 const validateEnvironment = () => {
@@ -38,13 +39,37 @@ const validateEnvironment = () => {
 };
 
 const checkAccessToken = () => {
-  validateEnvironment();
+  if (typeof window === "undefined") {
+    validateEnvironment();
+  }
 };
 
-const getHeaders = () => ({
-  ...(ACCESS_TOKEN ? { Authorization: `Bearer ${ACCESS_TOKEN}` } : {}),
-  accept: "application/json",
-});
+const getHeaders = (): HeadersInit => {
+  if (typeof window !== "undefined") {
+    return { accept: "application/json" };
+  }
+
+  return {
+    ...(ACCESS_TOKEN ? { Authorization: `Bearer ${ACCESS_TOKEN}` } : {}),
+    accept: "application/json",
+  };
+};
+
+const getRequestUrl = (url: string): string => {
+  if (typeof window === "undefined") {
+    return url;
+  }
+
+  const tmdbUrl = new URL(url);
+  if (tmdbUrl.origin !== BASE_ORIGIN) {
+    throw new Error("TMDB requests must use the configured API host.");
+  }
+
+  tmdbUrl.searchParams.delete("api_key");
+  const proxyUrl = new URL("/api/tmdb", window.location.origin);
+  proxyUrl.searchParams.set("path", `${tmdbUrl.pathname}${tmdbUrl.search}`);
+  return proxyUrl.toString();
+};
 
 // Request deduplication cache to prevent duplicate simultaneous requests
 const pendingRequests = new Map<string, Promise<unknown>>();
@@ -55,10 +80,11 @@ export async function fetchAPI<T = unknown>(
   options: RequestInit = {}
 ): Promise<T> {
   // Modify URL to include API key if using legacy authentication
-  let requestUrl = url;
-  if (!ACCESS_TOKEN && API_KEY) {
-    requestUrl += `${requestUrl.includes('?') ? '&' : '?'}api_key=${API_KEY}`;
+  let upstreamUrl = url;
+  if (typeof window === "undefined" && !ACCESS_TOKEN && API_KEY) {
+    upstreamUrl += `${upstreamUrl.includes("?") ? "&" : "?"}api_key=${API_KEY}`;
   }
+  const requestUrl = getRequestUrl(upstreamUrl);
 
   // Request deduplication - if same request is in flight, return the pending promise
   const cacheKey = `${requestUrl}:${JSON.stringify(options)}`;
@@ -68,22 +94,23 @@ export async function fetchAPI<T = unknown>(
 
   const requestPromise = (async () => {
     try {
-      // Add Next.js revalidation for server-side calls
-      const fetchOptions: RequestInit = {
-        ...options,
-        headers: {
-          ...getHeaders(), // Always include auth headers
-          ...options.headers,
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "application/json",
-        },
-      };
-
-      // Add revalidation for server-side calls (Next.js SSR/SSG)
-      if (typeof window === 'undefined') {
-        fetchOptions.next = { revalidate: 1800 }; // 30 minutes revalidation for server-side calls
-      }
+      const isServerRequest = typeof window === "undefined";
+      const fetchOptions: RequestInit = isServerRequest
+        ? {
+            ...options,
+            headers: {
+              ...getHeaders(),
+              ...options.headers,
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              Accept: "application/json",
+            },
+            next: { revalidate: 1800 },
+          }
+        : {
+            ...options,
+            headers: { Accept: "application/json" },
+          };
 
       const response = await fetch(requestUrl, fetchOptions);
       

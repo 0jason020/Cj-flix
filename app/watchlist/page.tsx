@@ -1,13 +1,28 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createPageMetadata } from "@/lib/seo";
+import WatchListClient from "@/components/watchlist/WatchListClient";
 
-export const metadata: Metadata = createPageMetadata(
-  "Watchlist",
-  "Manage your personal watchlist of movies and TV shows. Save and organize your favorite content on CJ FLIX.",
-  "/watchlist"
-);
+export const metadata: Metadata = {
+  ...createPageMetadata(
+    "My List",
+    "Manage your saved movies and TV shows on CJ FLIX.",
+    "/watchlist"
+  ),
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function WatchlistPage() {
-  redirect("/");
+  return (
+    <main className="app-bg-enhanced min-h-screen px-4 pb-16 pt-24" role="main">
+      <div className="mx-auto max-w-[1500px]">
+        <h1 className="mb-8 font-display text-5xl uppercase tracking-wide text-white sm:text-6xl">
+          My List
+        </h1>
+        <WatchListClient />
+      </div>
+    </main>
+  );
 }
