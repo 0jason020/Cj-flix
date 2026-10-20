@@ -12,7 +12,7 @@ const ResponsiveGrid = ({
   minHeight = false,
 }: ResponsiveGridProps) => {
   const baseClasses =
-    "grid grid-cols-2 gap-x-3 gap-y-8 px-5 py-10 sm:grid-cols-3 sm:gap-x-5 sm:px-8 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+    "flex flex-wrap justify-center gap-5 px-5 py-8 sm:justify-start sm:px-8";
   const heightClass = minHeight ? "min-h-screen" : "";
 
   return (

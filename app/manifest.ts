@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { SITE_NAME } from "@/lib/seo";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CJ FLIX - Stream Movies & TV Series",
-    short_name: "CJ FLIX",
-    description: "Stream unlimited movies and TV series online. Discover new releases, genres, and exclusive content.",
+    name: `${SITE_NAME} - Discover Movies & TV Shows`,
+    short_name: SITE_NAME,
+    description: "Discover popular movies, trending TV shows, new releases, and top-rated stories.",
     start_url: "/",
     display: "standalone",
     background_color: "#000000",

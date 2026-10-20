@@ -4,8 +4,8 @@ import Hero from "@/components/hero/Hero";
 import HomeSections from "@/components/home/HomeSections";
 
 export const metadata: Metadata = createPageMetadata(
-  "Home",
-  "Stream unlimited movies and TV series. Discover trending, top-rated, and new releases with CJ FLIX."
+  "Discover Popular Movies & TV Shows",
+  "Explore popular movies, trending TV shows, top-rated films, and new releases. Find your next favorite story on Craft Movies."
 );
 
 export default async function HomePage() {

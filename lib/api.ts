@@ -9,6 +9,8 @@ import {
   TMDBSeasonDetail,
   TMDBEpisodeDetail,
   TMDBMovieReleaseDatesResponse,
+  TMDBMovieVideosResponse,
+  TMDBMovieWatchProvidersResponse,
 } from "./types";
 
 // Support both legacy API_KEY and new ACCESS_TOKEN for backward compatibility
@@ -341,6 +343,7 @@ export const api = {
       year?: number;
       language?: string;
       minRating?: number;
+      voteCountGte?: number;
     } = {}
   ): Promise<TMDBTrendingResponse> {
     checkAccessToken();
@@ -352,6 +355,9 @@ export const api = {
       ...(params.language && { with_original_language: params.language }),
       ...(params.minRating && {
         "vote_average.gte": params.minRating.toString(),
+      }),
+      ...(params.voteCountGte && {
+        "vote_count.gte": params.voteCountGte.toString(),
       }),
     });
 
@@ -382,6 +388,41 @@ export const api = {
 
   // Get details with type-safe overloads
   getDetails,
+
+  async getMovieVideos(movieId: number): Promise<TMDBMovieVideosResponse> {
+    checkAccessToken();
+    if (!Number.isInteger(movieId) || movieId <= 0) {
+      throw new Error(`Invalid movie ID: ${movieId}.`);
+    }
+    return fetchAPI<TMDBMovieVideosResponse>(
+      `${BASE_URL}/movie/${movieId}/videos`,
+      { headers: getHeaders() }
+    );
+  },
+
+  async getMovieRecommendations(movieId: number): Promise<TMDBMovieResponse> {
+    checkAccessToken();
+    if (!Number.isInteger(movieId) || movieId <= 0) {
+      throw new Error(`Invalid movie ID: ${movieId}.`);
+    }
+    return fetchAPI<TMDBMovieResponse>(
+      `${BASE_URL}/movie/${movieId}/recommendations`,
+      { headers: getHeaders() }
+    );
+  },
+
+  async getMovieWatchProviders(
+    movieId: number
+  ): Promise<TMDBMovieWatchProvidersResponse> {
+    checkAccessToken();
+    if (!Number.isInteger(movieId) || movieId <= 0) {
+      throw new Error(`Invalid movie ID: ${movieId}.`);
+    }
+    return fetchAPI<TMDBMovieWatchProvidersResponse>(
+      `${BASE_URL}/movie/${movieId}/watch/providers`,
+      { headers: getHeaders() }
+    );
+  },
 
   // Get season details
   async getSeasonDetails(

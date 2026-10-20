@@ -1,459 +1,308 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { TMDBMovie, TMDBTVShow } from "@/lib/types";
+import { Loader2, RefreshCw, Star } from "lucide-react";
 import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Info, Pause, Play, PlayIcon, Star } from "lucide-react";
-import { PageLoading } from "../loading/PageLoading";
-import WatchlistButton from "../watchlist/WatchlistButton";
+import { useGenres } from "@/lib/hooks";
+import type { TMDBMovie } from "@/lib/types";
+import MovieTrailerButton from "@/components/movie/MovieTrailerButton";
+import WatchlistButton from "@/components/watchlist/WatchlistButton";
+import useSWR from "swr";
+import type { TMDBMovieVideosResponse } from "@/lib/types";
+import { selectOfficialTrailer } from "@/lib/trailer-selection";
 
-const Hero = () => {
-  const [slides, setSlides] = useState<(TMDBMovie | TMDBTVShow)[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [announceText, setAnnounceText] = useState("");
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const router = useRouter();
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
-  // Fetch hero slides data
-  useEffect(() => {
-    const fetchHeroSlides = async () => {
-      try {
-        // Try to fetch both movie and TV data with individual error handling
-        const [movieResult, tvResult] = await Promise.allSettled([
-          api.getPopular("movie", 1),
-          api.getPopular("tv", 1),
-        ]);
+function isEligibleMovie(movie: TMDBMovie): boolean {
+  return (
+    typeof movie.title === "string" &&
+    movie.title.trim().length > 0 &&
+    typeof movie.backdrop_path === "string" &&
+    movie.backdrop_path.startsWith("/") &&
+    typeof movie.release_date === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(movie.release_date) &&
+    !Number.isNaN(Date.parse(`${movie.release_date}T00:00:00Z`)) &&
+    Number.isFinite(movie.vote_average) &&
+    movie.vote_average > 0 &&
+    movie.vote_average <= 10 &&
+    Number.isInteger(movie.vote_count) &&
+    movie.vote_count >= 0
+  );
+}
 
-        const movieData =
-          movieResult.status === "fulfilled"
-            ? movieResult.value.results.slice(0, 4)
-            : [];
-        const tvData =
-          tvResult.status === "fulfilled"
-            ? tvResult.value.results.slice(0, 3)
-            : [];
+export default function Hero() {
+  const [movie, setMovie] = useState<TMDBMovie | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [imageUnavailable, setImageUnavailable] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const requestIdRef = useRef(0);
+  const lastRefreshRef = useRef(0);
+  const { data: genres } = useGenres();
+  const { data: trailerData } = useSWR<TMDBMovieVideosResponse>(
+    movie ? `movie/${movie.id}/videos` : null,
+    () => api.getMovieVideos(movie!.id),
+    { revalidateOnFocus: false, dedupingInterval: 24 * 60 * 60 * 1000 }
+  );
+  const trailer = trailerData ? selectOfficialTrailer(trailerData.results) : null;
 
-        // Log any failures for debugging
-        if (movieResult.status === "rejected") {
-          console.warn(
-            "Failed to fetch popular movies for hero:",
-            movieResult.reason
-          );
-        }
-        if (tvResult.status === "rejected") {
-          console.warn(
-            "Failed to fetch popular TV shows for hero:",
-            tvResult.reason
-          );
-        }
+  const refreshRanking = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+    setIsRefreshing(true);
 
-        // Combine available data
-        const combined = [...movieData, ...tvData];
+    try {
+      const [trending, masterplanSearch] = await Promise.all([
+        api.getTrending("movie", "week"),
+        api.search("Masterplan", "movie"),
+      ]);
+      if (requestId !== requestIdRef.current) return;
 
-        // If we have no data at all, return some fallback data or empty array
-        if (combined.length === 0) {
-          console.warn("No hero slides data available, using empty array");
-          setSlides([]);
-          return;
-        }
-
-        // Validate and normalize dates to timestamps
-        const getValidTimestamp = (
-          dateStr: string | null | undefined
-        ): number => {
-          if (!dateStr || dateStr.trim() === "") {
-            return Number.NEGATIVE_INFINITY; // Sort invalid dates to end
-          }
-          const timestamp = Date.parse(dateStr);
-          return isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
-        };
-
-        const sortedSlides = combined.sort((a, b) => {
-          // Extract candidate date strings
-          const dateStringA =
-            "release_date" in a ? a.release_date : a.first_air_date;
-          const dateStringB =
-            "release_date" in b ? b.release_date : b.first_air_date;
-
-          const timestampA = getValidTimestamp(dateStringA);
-          const timestampB = getValidTimestamp(dateStringB);
-
-          return timestampB - timestampA; // Latest first
-        });
-
-        setSlides(sortedSlides);
-      } catch (error) {
-        console.error("Critical error in fetchHeroSlides:", error);
-        setSlides([]);
-      } finally {
-        setLoading(false);
+      const trendingMovies = trending.results
+        .filter((item): item is TMDBMovie => "title" in item)
+        .filter(isEligibleMovie);
+      const masterplan = masterplanSearch.results.find((item): item is TMDBMovie =>
+        "title" in item && item.title.trim().toLowerCase() === "masterplan"
+      );
+      const nextMovie = masterplan && isEligibleMovie(masterplan)
+        ? masterplan
+        : trendingMovies[0] ?? null;
+      setMovie((currentMovie) =>
+        currentMovie?.id === nextMovie?.id ? currentMovie : nextMovie
+      );
+      setImageUnavailable(false);
+      setLoadError(false);
+      lastRefreshRef.current = Date.now();
+    } catch (error) {
+      console.error("Failed to refresh the featured trending movie:", error);
+      if (requestId === requestIdRef.current) {
+        setLoadError(true);
+        lastRefreshRef.current = Date.now();
       }
-    };
-
-    fetchHeroSlides();
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    }
   }, []);
 
-  // Reset currentIndex if it becomes invalid when slides array changes
   useEffect(() => {
-    if (slides && slides.length > 0) {
-      setCurrentIndex((ci) => (ci >= slides.length ? 0 : ci));
-    }
-  }, [slides]);
-
-  // Announce slide changes for screen readers
-  useEffect(() => {
-    if (slides && slides.length > 0) {
-      const currentSlide = slides[currentIndex];
-      const isTV = "name" in currentSlide;
-      const title = isTV ? currentSlide.name : currentSlide.title;
-      setAnnounceText(
-        `Now showing: ${title}, slide ${currentIndex + 1} of ${slides.length}`
-      );
-    }
-  }, [currentIndex, slides]);
-
-  // Auto-slide functionality - change slides every 10 seconds when not paused
-  useEffect(() => {
-    if (!slides || slides.length <= 1 || isPaused) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === slides.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 10000); // 10 seconds
-
-    return () => clearInterval(interval);
-  }, [slides, isPaused]);
-
-  // Early return after all hooks are called
-  if (loading) {
-    return (
-      <div
-        className="h-[min(760px,92vh)] min-h-[620px] animate-pulse bg-gradient-to-br from-[#171116] via-[#08080a] to-[#08080a]"
-        aria-label="Loading featured title"
-      >
-        <PageLoading>Finding your next movie...</PageLoading>
-      </div>
+    void refreshRanking();
+    const interval = window.setInterval(
+      () => void refreshRanking(),
+      REFRESH_INTERVAL_MS
     );
-  }
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        Date.now() - lastRefreshRef.current >= REFRESH_INTERVAL_MS
+      ) {
+        void refreshRanking();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
-  if (!slides || slides.length === 0) {
+    return () => {
+      requestIdRef.current += 1;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refreshRanking]);
+
+  if (isLoading && !movie) {
     return (
-      <section className="flex min-h-[620px] items-center bg-[radial-gradient(ellipse_at_70%_40%,rgba(229,9,36,0.12),transparent_48%),#08080a] px-5 sm:px-8">
-        <div className="mx-auto w-full max-w-[1500px]">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-dashboard-accent">
-            Your next favorite is waiting
-          </p>
-          <h1 className="max-w-2xl text-5xl font-extrabold tracking-[-0.055em] text-white sm:text-7xl">
-            Find your next great story.
-          </h1>
-          <p className="mt-5 max-w-lg text-sm leading-6 text-white/65 sm:text-base">
-            Featured titles are unavailable right now. Explore the full library
-            while we get things back on screen.
-          </p>
-          <Link
-            href="/movies"
-            className="mt-7 inline-flex items-center rounded-lg bg-dashboard-accent px-6 py-3 text-sm font-bold text-white transition hover:bg-dashboard-accent-soft"
-          >
-            Explore Movies
-          </Link>
+      <section
+        className="relative h-[min(640px,82vh)] min-h-[500px] animate-pulse overflow-hidden bg-[#101116] sm:min-h-[560px]"
+        aria-label="Loading featured trending movie"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-[#08080a] via-[#08080a]/70 to-transparent" />
+        <div className="absolute bottom-20 left-5 space-y-5 sm:left-10 lg:left-16">
+          <div className="h-4 w-36 rounded bg-white/10" />
+          <div className="h-12 w-[min(70vw,520px)] rounded bg-white/10" />
+          <div className="h-4 w-72 max-w-[80vw] rounded bg-white/10" />
+          <div className="h-20 w-96 max-w-[80vw] rounded bg-white/[0.06]" />
+          <div className="flex gap-3">
+            <div className="h-12 w-36 rounded-lg bg-white/10" />
+            <div className="h-12 w-32 rounded-lg bg-white/10" />
+          </div>
         </div>
       </section>
     );
   }
 
-  const currentSlide = slides[currentIndex];
-  const isTV = "name" in currentSlide;
-  const title = isTV ? currentSlide.name : currentSlide.title;
-  const href = isTV
-    ? `/series/${currentSlide.id}`
-    : `/movie/${currentSlide.id}`;
-
-  // Construct full TMDB image URL with fallback
-  const backdropUrl = currentSlide.backdrop_path
-    ? `https://image.tmdb.org/t/p/original${currentSlide.backdrop_path}`
-    : "https://i.imgur.com/wjVuAGb.png"; // Fallback image
-  const releaseDate =
-    "release_date" in currentSlide
-      ? currentSlide.release_date
-      : currentSlide.first_air_date;
-  const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
-
-  async function handlePlay(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): Promise<void> {
-    event.preventDefault();
-    try {
-      await router.push(href);
-    } catch (error) {
-      console.error("Navigation failed:", error);
-    }
+  if (!movie) {
+    return (
+      <section className="flex min-h-[500px] items-center bg-[#08080a] px-5 sm:px-10 lg:px-16">
+        <div className="mx-auto w-full max-w-[1500px]">
+          <p className="text-sm font-semibold text-dashboard-accent">
+            Trending new release
+          </p>
+          <h1 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
+            {loadError
+              ? "Featured movies are temporarily unavailable."
+              : "No eligible featured movie is available right now."}
+          </h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-slate-400">
+            A featured pick from this week&apos;s trending movies.
+          </p>
+          <button
+            type="button"
+            onClick={() => void refreshRanking()}
+            disabled={isRefreshing}
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-dashboard-accent px-5 py-3 text-sm font-bold text-white transition hover:bg-dashboard-accent-soft disabled:opacity-60"
+          >
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Try again
+          </button>
+        </div>
+      </section>
+    );
   }
 
-  // Handle mouse interactions for accessibility
-  const handleMouseEnter = () => {
-    if (slides.length > 1) {
-      setIsPaused(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    resetTilt();
-    if (slides.length > 1) {
-      setIsPaused(false);
-    }
-  };
-
-  // Handle focus events for accessibility
-  const handleFocus = () => {
-    if (slides.length > 1) {
-      setIsPaused(true);
-    }
-  };
-
-  const handleBlur = () => {
-    if (slides.length > 1) {
-      setIsPaused(false);
-    }
-  };
-
-  // Toggle pause state
-  const togglePause = () => {
-    if (slides.length > 1) {
-      setIsPaused(!isPaused);
-    }
-  };
-
-  // Handle keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (slides.length <= 1) return;
-
-    // Only handle keys when the hero container itself has focus, not child elements
-    if (event.currentTarget !== event.target) return;
-
-    switch (event.key) {
-      case "ArrowLeft":
-        event.preventDefault();
-        setCurrentIndex((prevIndex) =>
-          prevIndex === 0 ? slides.length - 1 : prevIndex - 1
-        );
-        break;
-      case "ArrowRight":
-        event.preventDefault();
-        setCurrentIndex((prevIndex) =>
-          prevIndex === slides.length - 1 ? 0 : prevIndex + 1
-        );
-        break;
-      case " ":
-      case "Enter":
-        event.preventDefault();
-        togglePause();
-        break;
-    }
-  };
-
-  const handleTilt = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-
-    setTilt({
-      x: (0.5 - py) * 16,
-      y: (px - 0.5) * 18,
-    });
-  };
-
-  const resetTilt = () => setTilt({ x: 0, y: 0 });
+  const releaseYear = movie.release_date.slice(0, 4);
+  const genreNames = (genres?.genres ?? [])
+    .filter((genre) => movie.genre_ids.includes(genre.id))
+    .map((genre) => genre.name);
+  const backdropUrl = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`;
+  const posterUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : null;
 
   return (
-    <div
-      className="hero-carousel-focus relative h-[min(760px,92vh)] min-h-[620px] w-full overflow-hidden border-b border-white/[0.06] bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashboard-accent focus-visible:outline-offset-2 sm:min-h-[680px]"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      onMouseMove={handleTilt}
-      tabIndex={0}
-      role="region"
-      aria-label="Hero carousel"
+    <section
+      className="relative isolate min-h-[560px] overflow-hidden border-b border-white/[0.07] bg-[#08080a] sm:min-h-[620px]"
+      aria-labelledby="featured-movie-title"
     >
-      <motion.div
-        animate={{
-          rotateX: tilt.x,
-          rotateY: tilt.y,
-          scale: 1.08,
-        }}
-        transition={{ type: "spring", stiffness: 80, damping: 18, mass: 0.7 }}
-        className="absolute inset-0"
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1.12 }}
-            exit={{ opacity: 0, scale: 1.08 }}
-            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0"
+      {!imageUnavailable && (
+        <Image
+          key={movie.id}
+          src={backdropUrl}
+          alt={`${movie.title} backdrop`}
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-20 object-cover object-center"
+          unoptimized
+          onError={() => setImageUnavailable(true)}
+        />
+      )}
+      {trailer && (
+        <iframe
+          key={trailer.key}
+          src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(trailer.key)}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${encodeURIComponent(trailer.key)}&rel=0`}
+          title={`${movie.title} official trailer`}
+          className="pointer-events-none absolute inset-0 -z-10 h-full w-full scale-[1.35]"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+      )}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#08080a]/90 via-[#08080a]/48 to-[#08080a]/5" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#08080a]/85 via-[#08080a]/10 to-[#08080a]/10" />
+
+      <div className="mx-auto grid min-h-[560px] max-w-[1500px] items-end gap-8 px-5 pb-20 pt-28 sm:min-h-[620px] sm:px-10 sm:pb-24 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center lg:px-16 lg:py-24">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-dashboard-accent/30 bg-black/40 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-dashboard-accent backdrop-blur">
+            <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+            {movie.title.trim().toLowerCase() === "masterplan" ? "Featured pick" : "Trending this week"} · Official trailer
+          </div>
+          <h1
+            id="featured-movie-title"
+            className="mt-5 max-w-3xl text-4xl font-extrabold leading-[0.98] tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl"
           >
-            <Image
-              src={backdropUrl}
-              alt={`${title || "Featured content"} backdrop image`}
-              fill
-              className="object-cover"
-              priority
-              onError={(e) => {
-                console.error("Failed to load image:", backdropUrl);
-                e.currentTarget.src = "https://i.imgur.com/wjVuAGb.png";
-              }}
+            {movie.title}
+          </h1>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-medium text-white/75">
+            <span>{releaseYear}</span>
+            <span aria-hidden="true" className="text-white/35">•</span>
+            <span className="inline-flex items-center gap-1.5 text-white">
+              <Star className="h-4 w-4 fill-dashboard-accent text-dashboard-accent" />
+              {movie.vote_average.toFixed(1)}
+            </span>
+            <span className="text-xs text-white/50">
+              {movie.vote_count.toLocaleString()} TMDB votes
+            </span>
+          </div>
+
+          {genreNames.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {genreNames.map((genre) => (
+                <span
+                  key={genre}
+                  className="rounded-full border border-white/15 bg-black/25 px-3 py-1 text-xs text-white/80 backdrop-blur-sm"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {movie.overview && (
+            <p className="mt-5 line-clamp-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
+              {movie.overview}
+            </p>
+          )}
+
+          <div className="mt-7 flex flex-wrap gap-3">
+            <MovieTrailerButton
+              movieId={movie.id}
+              title={movie.title}
+              className="inline-flex items-center justify-center rounded-lg bg-dashboard-accent px-5 py-3 text-sm font-bold text-white transition hover:bg-dashboard-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#08080a] via-[#08080a]/75 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/10 to-[#08080a]/20" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_68%_40%,transparent_0%,rgba(8,8,10,0.5)_100%)]" />
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-
-      <motion.div
-        animate={{ x: tilt.y * 0.8, y: tilt.x * 0.6 }}
-        transition={{ type: "spring", stiffness: 80, damping: 18 }}
-        className="relative z-10 flex h-full items-end px-5 pb-28 sm:px-8 sm:pb-32 lg:items-center lg:pb-10"
-      >
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-2xl text-white"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-5 inline-flex items-center gap-2 rounded-md border border-dashboard-accent/20 bg-dashboard-accent/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-dashboard-accent"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-dashboard-accent shadow-[0_0_12px_rgba(229,9,36,0.9)]" />
-            #1 Trending Now
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="mb-4 max-w-2xl font-sans text-5xl font-extrabold leading-[0.95] tracking-[-0.055em] text-white sm:text-7xl lg:text-[5.75rem]"
-          >
-            {title}
-          </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mb-5 flex flex-wrap items-center gap-3 text-xs font-semibold text-white/75 sm:text-sm"
-          >
-            {releaseYear && <span>{releaseYear}</span>}
-            {releaseYear && <span className="text-white/35">•</span>}
-            <span>{isTV ? "TV Series" : "Movie"}</span>
-            {currentSlide.vote_average > 0 && (
-              <span className="inline-flex items-center gap-1 text-white">
-                <Star className="h-3.5 w-3.5 fill-dashboard-accent text-dashboard-accent" />
-                {currentSlide.vote_average.toFixed(1)}
-              </span>
-            )}
-          </motion.div>
-
-          <p className="mb-7 line-clamp-3 max-w-xl text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
-            {currentSlide.overview}
-          </p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-wrap gap-3"
-          >
-            <Button
-              size="lg"
-              className="rounded-lg bg-dashboard-accent px-6 py-3 font-bold text-white shadow-xl shadow-dashboard-accent/20 hover:bg-dashboard-accent-soft"
-              onClick={handlePlay}
-              aria-label={`Play ${title}`}
+            <Link
+              href={`/movie/${movie.id}`}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-black/30 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              <Play className="mr-2 h-4 w-4" />
-              Play Now
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-lg border-white/15 bg-white/[0.04] px-6 py-3 font-semibold text-white hover:border-white/30 hover:bg-white/10 hover:text-white"
-              onClick={handlePlay}
-            >
-              <Info className="mr-2 h-4 w-4" />
-              More Info
-            </Button>
+              View Details
+            </Link>
             <WatchlistButton
-              media={currentSlide}
+              media={movie}
               variant="hero"
-              className="rounded-lg border border-white/15 bg-white/[0.04] px-5 py-3 text-white hover:border-white/30 hover:bg-white/10"
+              className="rounded-lg border border-white/20 bg-black/30 px-5 py-3 text-white hover:bg-white/10"
             />
-          </motion.div>
-        </motion.div>
-      </motion.div>
-
-      {/* Slide indicators and pause/play control */}
-      <div className="absolute bottom-8 left-5 z-20 flex items-center space-x-4 sm:left-8">
-        {/* Slide dots */}
-        <div className="flex space-x-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ember focus:ring-offset-2 focus:ring-offset-black ${
-                index === currentIndex
-                  ? "w-10 bg-ember"
-                  : "w-5 bg-white/40 hover:bg-white/70"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-              aria-current={index === currentIndex ? "true" : "false"}
-            />
-          ))}
+          </div>
+          {loadError && (
+            <p role="status" className="mt-4 text-xs text-slate-400">
+              Could not refresh the featured movie. Showing the last successfully
+              selected movie.
+            </p>
+          )}
         </div>
 
-        {/* Pause/Play control - only show if multiple slides */}
-        {slides.length > 1 && (
-          <button
-            onClick={togglePause}
-            className="rounded-md border border-white/20 bg-black/40 p-2 text-white transition-all duration-200 hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-ember focus:ring-offset-2 focus:ring-offset-black"
-            aria-label={isPaused ? "Resume slideshow" : "Pause slideshow"}
-            aria-pressed={isPaused}
-          >
-            {isPaused ? (
-              <PlayIcon className="h-4 w-4" />
-            ) : (
-              <Pause className="h-4 w-4" />
-            )}
-          </button>
+        {posterUrl && (
+          <div className="hidden justify-self-end lg:block">
+            <Image
+              src={posterUrl}
+              alt={`${movie.title} poster`}
+              width={260}
+              height={390}
+              className="w-[220px] rounded-xl border border-white/15 object-cover shadow-2xl xl:w-[260px]"
+              unoptimized
+            />
+          </div>
         )}
       </div>
 
-      {/* Pause indicator */}
-      {isPaused && slides.length > 1 && (
-        <div className="absolute right-5 top-24 z-20 flex items-center space-x-2 rounded-md border border-white/20 bg-black/50 px-3 py-1 text-sm text-white sm:right-8">
-          <Pause className="h-3 w-3" />
-          <span>Paused</span>
-        </div>
-      )}
-
-      {/* Screen reader announcements */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {announceText}
-      </div>
-    </div>
+      <button
+        type="button"
+        onClick={() => void refreshRanking()}
+        disabled={isRefreshing}
+        aria-label="Refresh featured movie"
+        title="Refresh featured movie"
+        className="absolute bottom-5 right-5 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur transition hover:border-white/35 hover:text-white disabled:opacity-50 sm:bottom-7 sm:right-8"
+      >
+        <RefreshCw
+          className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+    </section>
   );
-};
-
-export default Hero;
+}

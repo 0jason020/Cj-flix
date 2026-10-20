@@ -3,19 +3,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Loader2 } from "lucide-react";
-import useSWR from "swr";
+import { Loader2, Play } from "lucide-react";
 import { TMDBMovie, TMDBTVShow } from "@/lib/types";
-
-type ReleaseQualityResponse = { quality: "HD" | "CAM" };
-
-const fetchReleaseQuality = async (url: string): Promise<ReleaseQualityResponse> => {
-  const res = await fetch(url);
-  if (!res.ok) {
-    return { quality: "CAM" };
-  }
-  return res.json();
-};
+import MediaPlayer from "@/components/display/MediaPlayer";
+import { createPortal } from "react-dom";
 
 // Type guard function using a reliable discriminant
 function isTVShow(item: TMDBMovie | TMDBTVShow): item is TMDBTVShow {
@@ -26,116 +17,110 @@ interface MediaCardProps {
   media: TMDBMovie | TMDBTVShow;
   variant?: "horizontal" | "grid"; // For different layouts
   className?: string;
+  showQuickPlay?: boolean;
 }
 
 const MediaCard: React.FC<MediaCardProps> = ({
   media,
-  variant = "grid",
   className = "",
+  showQuickPlay = false,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const isTV = isTVShow(media);
   const href = isTV ? `/series/${media.id}` : `/movie/${media.id}`;
   const titleVal = isTV ? media.name : media.title;
-
-  const { data: qualityData } = useSWR<ReleaseQualityResponse>(
-    isTV ? null : `/api/movie/${media.id}/release-quality`,
-    fetchReleaseQuality,
-    { revalidateOnFocus: false, dedupingInterval: 3600_000 }
-  );
-
-  const qualityLabel = !isTV ? qualityData?.quality : undefined;
   const handleCardClick = () => setIsLoading(true);
 
   const poster_path = media.poster_path
     ? `https://image.tmdb.org/t/p/w342/${media.poster_path}`
     : "https://i.imgur.com/wjVuAGb.png";
 
-  // Dynamic classes based on variant
   const getCardClasses = () => {
     const baseClasses =
-      "group relative overflow-hidden rounded-xl transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl";
+      "group relative overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl";
     const premiumEffects =
-      "border border-white/10 bg-dashboard-card hover:border-dashboard-accent/60";
+      "border border-white/[0.09] bg-[#101010] hover:border-white/20";
 
-    if (variant === "horizontal") {
-      // For horizontal scrolling (CategorySection)
-      return `w-[160px] sm:w-[180px] md:w-[200px] ${baseClasses} ${premiumEffects} ${className}`;
-    } else {
-      // For grid layout (MovieDisplay, TvDisplay) - responsive sizing
-      return `w-full ${baseClasses} ${premiumEffects} ${className}`;
-    }
+    return `w-[165px] shrink-0 ${baseClasses} ${premiumEffects} ${className}`;
   };
 
 
   return (
     <div className={getCardClasses()}>
       <Link href={href} title={titleVal} className="group block w-full" onClick={handleCardClick}>
-        <div className="aspect-[2/3] w-full relative overflow-hidden">
-          {/* Premium image container with enhanced effects */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#090a0c] via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
+        <div className="relative aspect-[2/3] w-full overflow-hidden bg-white/[0.04]">
           <Image
             src={poster_path}
             alt={`${titleVal} ${isTV ? "TV series" : "movie"} poster`}
-            width={342}
-            height={513}
-            className="h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
+            width={330}
+            height={495}
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             unoptimized
           />
-
-          {/* US digital/physical release heuristic: HD vs CAM */}
-          {qualityLabel && (
-            <div className="absolute bottom-2 right-2 z-[22] rounded-md border border-dashboard-accent/40 bg-black/75 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-dashboard-accent shadow-lg backdrop-blur-sm">
-              {qualityLabel}
-            </div>
-          )}
-
-          {/* Premium overlay content */}
-          <div className="absolute inset-0 z-20">
-            {/* Icon badge shown on hover */}
-            <div className="absolute top-3 left-1/2 z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
-              <div className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-black/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-black/40">
-                <Play className="h-4 w-4" />
-                Play
-              </div>
-            </div>
-
-            {/* Rating badge */}
-            {media.vote_average > 0 && (
-              <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="rounded-md border border-white/15 bg-black/80 px-2 py-1 backdrop-blur-md">
-                  <span className="text-xs font-bold text-dashboard-accent">★ {media.vote_average.toFixed(1)}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Movie/Series info on hover - bottom left */}
-            <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-              <div className="space-y-1">
-                {/* Media type badge */}
-                <div className="w-fit rounded-md border border-dashboard-accent/30 bg-dashboard-accent px-1.5 py-1 backdrop-blur-md">
-                  <span className="text-white text-xs uppercase tracking-wider">{isTV ? "Series" : "Movie"}</span>
-                </div>
-                {/* Title */}
-                <div className="rounded-md border border-white/15 bg-black/80 px-2 py-1 backdrop-blur-md">
-                  <h3 className="text-white text-xs font-semibold line-clamp-2 leading-tight">
-                    {titleVal}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </Link>
 
+      <div className="px-3 py-2.5">
+        <Link
+          href={href}
+          title={titleVal}
+          className="block"
+          onClick={handleCardClick}
+        >
+          <h3 className="line-clamp-2 min-h-9 text-[13px] font-semibold leading-[1.15rem] text-white transition-colors group-hover:text-white/90">
+            {titleVal}
+          </h3>
+          <p className="mt-1.5 truncate text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+            {(isTV ? media.first_air_date : media.release_date)?.slice(0, 4) ||
+              "Release date TBA"}
+            <span className="mx-1.5 text-slate-600">·</span>
+            {isTV ? "TV Series" : "Movie"}
+          </p>
+        </Link>
+        {showQuickPlay && !isTV && (
+          <button
+            type="button"
+            onClick={() => setIsPlayerOpen(true)}
+            className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-dashboard-accent px-2 py-2 text-[11px] font-bold text-white transition hover:bg-dashboard-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label={`Watch ${titleVal}`}
+          >
+            <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+            Watch movie
+          </button>
+        )}
+      </div>
+
       {isLoading && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-black/70">
+        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-2xl bg-black/70">
           <div className="inline-flex items-center gap-2 rounded-full bg-black/90 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-black/50">
             <Loader2 className="h-5 w-5 animate-spin" />
             Loading...
           </div>
         </div>
+      )}
+
+      {isPlayerOpen && !isTV && typeof document !== "undefined" && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 p-3 backdrop-blur-sm sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Watch ${titleVal}`}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIsPlayerOpen(false);
+          }}
+        >
+          <div className="w-full max-w-6xl">
+            <MediaPlayer
+              mediaId={media.id}
+              title={titleVal}
+              type="movie"
+              onClose={() => setIsPlayerOpen(false)}
+              className="border-white/15 shadow-[0_40px_140px_rgba(0,0,0,0.7)]"
+            />
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -7,7 +7,7 @@ import { PageLoading } from "@/components/loading/PageLoading";
 
 export const metadata: Metadata = createPageMetadata(
   "Search",
-  "Search for your favorite movies and TV shows. Find trending, top-rated, and new releases on CJ FLIX.",
+  "Search for your favorite movies and TV shows. Find trending, top-rated, and new releases on Craft Movies.",
   "/search"
 );
 

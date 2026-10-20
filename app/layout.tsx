@@ -7,48 +7,39 @@ import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
 
 export const metadata: Metadata = {
-  title: "CJ FLIX | Stream Movies & TV Series Online",
-  description: "Stream unlimited movies and TV series. Discover new releases, genres, and exclusive content. Ad-free streaming experience.",
+  title: "Craft Movies | Discover Popular Movies & TV Shows",
+  description: "Discover popular movies, trending TV shows, new releases, and top-rated stories. Find your next favorite on Craft Movies.",
   keywords: ["movies", "streaming", "TV series", "cinema", "film", "watch online", "video streaming"],
-  authors: [{ name: "CJ FLIX" }],
-  creator: "CJ FLIX",
-  publisher: "CJ FLIX",
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   formatDetection: {
     email: false,
     telephone: false,
     address: false,
   },
-  metadataBase: new URL("https://cjflix.com"),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: "https://cjflix.com",
+    canonical: SITE_URL,
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://cjflix.com",
-    siteName: "CJ FLIX",
-    title: "CJ FLIX | Stream Movies & TV Series Online",
-    description: "Stream unlimited movies and TV series. Discover new releases, genres, and exclusive content. Ad-free streaming experience.",
-    images: [
-      {
-        url: "https://cjflix.com/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "CJ FLIX - Streaming Platform",
-      },
-    ],
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: "Craft Movies | Discover Popular Movies & TV Shows",
+    description: "Discover popular movies, trending TV shows, new releases, and top-rated stories. Find your next favorite on Craft Movies.",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "CJ FLIX | Stream Movies & TV Series Online",
-    description: "Stream unlimited movies and TV series. Discover new releases, genres, and exclusive content.",
-    creator: "@cjflix",
-    images: ["https://cjflix.com/og-image.jpg"],
+    card: "summary",
+    title: "Craft Movies | Discover Popular Movies & TV Shows",
+    description: "Discover popular movies, trending TV shows, new releases, and top-rated stories.",
   },
   robots: {
     index: true,

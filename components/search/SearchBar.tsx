@@ -1,12 +1,23 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
-import { BiSearch } from "react-icons/bi";
-import { AiOutlineClose } from "react-icons/ai";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Check, Loader2, Search, X } from "lucide-react";
+import { useDebounce } from "use-debounce";
+import { api } from "@/lib/api";
+import type { TMDBMovie, TMDBTVShow } from "@/lib/types";
 
 interface SearchBarProps {
   onTyping: (value: string) => void;
   onSearch?: (value: string) => void;
   initialValue?: string;
+}
+
+type Suggestion = TMDBMovie | TMDBTVShow;
+
+function isTVShow(item: Suggestion): item is TMDBTVShow {
+  return "name" in item;
 }
 
 const SearchBar = ({
@@ -15,136 +26,259 @@ const SearchBar = ({
   initialValue = "",
 }: SearchBarProps) => {
   const searchBarRef = useRef<HTMLInputElement>(null);
-  const [searchValue, setSearchValue] = useState<string>(initialValue);
-  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const requestRef = useRef(0);
+  const router = useRouter();
+  const [searchValue, setSearchValue] = useState(initialValue);
+  const [isFocused, setIsFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [debouncedValue] = useDebounce(searchValue.trim(), 250);
 
-  // Update search value when initialValue changes
+  useEffect(() => setSearchValue(initialValue), [initialValue]);
+
   useEffect(() => {
-    setSearchValue(initialValue);
-  }, [initialValue]);
+    const requestId = ++requestRef.current;
+    if (debouncedValue.length < 2) {
+      setSuggestions([]);
+      setIsLoadingSuggestions(false);
+      return;
+    }
 
-  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-    onTyping(e.target.value);
+    setIsLoadingSuggestions(true);
+    api
+      .search(debouncedValue)
+      .then((result) => {
+        if (requestId !== requestRef.current) return;
+        setSuggestions(
+          result.results
+            .filter((item): item is Suggestion => "title" in item || "name" in item)
+            .slice(0, 6)
+        );
+        setActiveSuggestion(-1);
+      })
+      .catch(() => {
+        if (requestId === requestRef.current) setSuggestions([]);
+      })
+      .finally(() => {
+        if (requestId === requestRef.current) setIsLoadingSuggestions(false);
+      });
+
+    return () => {
+      requestRef.current += 1;
+    };
+  }, [debouncedValue]);
+
+  const handleTyping = (value: string) => {
+    setSearchValue(value);
+    onTyping(value);
   };
 
-  const handleClear = () => {
-    setSearchValue("");
-    onTyping("");
-    searchBarRef.current?.focus();
+  const openSuggestion = (index: number) => {
+    const item = suggestions[index];
+    if (!item) return;
+    router.push(isTVShow(item) ? `/series/${item.id}` : `/movie/${item.id}`);
   };
 
-  const handleSearchClick = () => {
-    // Guard against empty or whitespace-only searches
+  const handleSearch = () => {
     if (!searchValue.trim()) {
       searchBarRef.current?.focus();
       return;
     }
-
-    // Explicitly trigger search with current value if callback provided
-    if (onSearch) {
-      onSearch(searchValue);
-    } else {
-      // Fallback: trigger search by calling onTyping with current value
-      onTyping(searchValue);
-    }
-
-    // Keep input focused for better UX - user can continue typing
+    if (onSearch) onSearch(searchValue.trim());
+    else onTyping(searchValue.trim());
     searchBarRef.current?.focus();
   };
 
-  const handleButtonMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent button click from stealing focus from input
-    e.preventDefault();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSearchClick();
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown" && suggestions.length > 0) {
+      event.preventDefault();
+      setActiveSuggestion((current) => (current + 1) % suggestions.length);
+    } else if (event.key === "ArrowUp" && suggestions.length > 0) {
+      event.preventDefault();
+      setActiveSuggestion((current) =>
+        current <= 0 ? suggestions.length - 1 : current - 1
+      );
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (activeSuggestion >= 0) openSuggestion(activeSuggestion);
+      else handleSearch();
+    } else if (event.key === "Escape") {
+      setIsFocused(false);
     }
   };
 
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = () => setIsFocused(false);
-
-  useEffect(() => {
-    searchBarRef?.current?.focus?.();
-  }, []);
+  const showSuggestions = isFocused && Boolean(searchValue.trim());
 
   return (
-    <div className="flex justify-center mt-10 mx-4">
-      <div className="relative max-w-xl w-full">
-        {/* Search Container */}
+    <div className="mx-auto mt-8 w-full max-w-3xl px-4 sm:mt-12 sm:px-6">
+      <div className="relative w-full">
         <div
-          className={`relative flex items-center rounded-3xl border border-white/10 bg-black/70 shadow-[0_20px_80px_-50px_rgba(229,9,20,0.35)] transition-all duration-300 overflow-hidden backdrop-blur-xl ${
+          className={`relative flex items-center gap-2 rounded-2xl border bg-[#111216]/95 p-2 shadow-[0_24px_80px_-40px_rgba(229,9,20,0.35)] backdrop-blur-xl transition duration-200 sm:rounded-[1.35rem] ${
             isFocused
-              ? "ring-2 ring-primary/50 scale-105"
-              : "ring-0"
+              ? "border-dashboard-accent/60 shadow-[0_0_0_4px_rgba(229,9,20,0.12),0_24px_80px_-40px_rgba(229,9,20,0.4)]"
+              : "border-white/10 hover:border-white/20"
           }`}
         >
-          {/* Search Icon */}
-          <div className="pl-4 pr-3">
-            <BiSearch
-              className={`text-xl transition-colors duration-300 ${
-                isFocused ? "text-primary" : "text-gray-400"
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] sm:h-12 sm:w-12">
+            <Search
+              className={`h-5 w-5 transition-colors ${
+                isFocused ? "text-dashboard-accent" : "text-slate-400"
               }`}
+              aria-hidden="true"
             />
           </div>
-
-          {/* Input Field */}
           <input
+            ref={searchBarRef}
             value={searchValue}
-            type="text"
+            type="search"
             name="search"
             id="search"
-            placeholder="Search for movies, TV shows, actors.."
-            aria-label="Search for movies, TV shows, actors"
-            className="flex-1 bg-transparent text-white placeholder-gray-400 py-3 placeholder:text-xs pr-3 text-base outline-none font-medium"
-            onChange={handleTyping}
+            placeholder="Search movies and TV shows"
+            aria-label="Search movies and TV shows"
+            aria-autocomplete="list"
+            aria-controls="search-suggestions"
+            aria-activedescendant={
+              activeSuggestion >= 0
+                ? `search-suggestion-${activeSuggestion}`
+                : undefined
+            }
+            className="min-w-0 flex-1 bg-transparent px-1 py-3 text-sm font-medium text-white outline-none placeholder:text-slate-500 sm:text-base"
+            onChange={(event) => handleTyping(event.target.value)}
             onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => window.setTimeout(() => setIsFocused(false), 150)}
             autoComplete="off"
-            ref={searchBarRef}
           />
-
-          {/* Clear Button */}
           {searchValue && (
             <button
               type="button"
-              onClick={handleClear}
-              onMouseDown={handleButtonMouseDown}
-              className="p-2 text-gray-400 hover:text-white transition-colors duration-200 mr-1"
+              onClick={() => {
+                handleTyping("");
+                setSuggestions([]);
+                searchBarRef.current?.focus();
+              }}
+              onMouseDown={(event) => event.preventDefault()}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/[0.07] hover:text-white"
               aria-label="Clear search"
             >
-              <AiOutlineClose className="text-lg" />
+              <X className="h-4 w-4" />
             </button>
           )}
-
-          {/* Search Button */}
           <button
             type="button"
             aria-label="Search"
-            className="bg-primary text-white font-bold px-5 py-4 transition-all duration-200 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleSearchClick}
-            onMouseDown={handleButtonMouseDown}
+            className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-dashboard-accent px-4 text-sm font-bold text-white transition hover:bg-dashboard-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-not-allowed disabled:opacity-40 sm:h-12 sm:px-5"
+            onClick={handleSearch}
+            onMouseDown={(event) => event.preventDefault()}
             disabled={!searchValue.trim()}
           >
-            <BiSearch className="text-lg" />
+            <Search className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Search</span>
           </button>
         </div>
 
-        {/* Search Suggestions Placeholder */}
-        {isFocused && searchValue && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-lg border border-gray-700 rounded-xl shadow-xl z-50">
-            <div className="p-3 text-gray-400 text-sm">
-              {searchValue.length < 3
-                ? `Type ${3 - searchValue.length} more character${
-                    3 - searchValue.length !== 1 ? "s" : ""
-                  } to search`
-                : `Press Enter or click search to find "${searchValue}"`}
+        {showSuggestions && (
+          <div className="absolute inset-x-0 top-full z-50 mt-3 overflow-hidden rounded-2xl border border-white/10 bg-[#111216]/[0.98] shadow-[0_24px_80px_rgba(0,0,0,0.65)] backdrop-blur-2xl">
+            <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                {suggestions.length && !isLoadingSuggestions
+                  ? "Suggested titles"
+                  : "Search"}
+              </p>
+              {isLoadingSuggestions ? (
+                <Loader2
+                  className="h-4 w-4 animate-spin text-dashboard-accent"
+                  aria-label="Loading suggestions"
+                />
+              ) : suggestions.length > 0 ? (
+                <span className="text-[11px] text-slate-500">
+                  ↑ ↓ to navigate · Enter to open
+                </span>
+              ) : null}
             </div>
+            {searchValue.trim().length < 2 ? (
+              <div className="px-4 py-5 text-sm text-slate-400">
+                Type one more character to find matching titles.
+              </div>
+            ) : isLoadingSuggestions ? (
+              <div className="px-4 py-5 text-sm text-slate-400">
+                Finding matching titles…
+              </div>
+            ) : suggestions.length ? (
+              <ul
+                id="search-suggestions"
+                className="max-h-[min(26rem,60vh)] overflow-y-auto p-2"
+                role="listbox"
+                aria-label="Matching movies and shows"
+              >
+                {suggestions.map((item, index) => {
+                  const isTV = isTVShow(item);
+                  const title = isTV ? item.name : item.title;
+                  const date = isTV ? item.first_air_date : item.release_date;
+                  return (
+                    <li
+                      key={`${isTV ? "tv" : "movie"}-${item.id}`}
+                      id={`search-suggestion-${index}`}
+                      role="option"
+                      aria-selected={activeSuggestion === index}
+                    >
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition ${
+                          activeSuggestion === index
+                            ? "bg-white/[0.09]"
+                            : "hover:bg-white/[0.06]"
+                        }`}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onMouseEnter={() => setActiveSuggestion(index)}
+                        onClick={() => openSuggestion(index)}
+                      >
+                        <span className="relative h-[4.1rem] w-11 shrink-0 overflow-hidden rounded-lg bg-white/[0.06]">
+                          {item.poster_path ? (
+                            <Image
+                              src={`https://image.tmdb.org/t/p/w92${item.poster_path}`}
+                              alt=""
+                              fill
+                              sizes="44px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <span className="flex h-full items-center justify-center text-[10px] text-slate-500">
+                              No art
+                            </span>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-white">
+                            {title}
+                          </span>
+                          <span className="mt-1 block text-xs text-slate-400">
+                            {isTV ? "TV series" : "Movie"}
+                            {date ? ` · ${date.slice(0, 4)}` : ""}
+                          </span>
+                        </span>
+                        {activeSuggestion === index ? (
+                          <Check
+                            className="mr-2 h-4 w-4 shrink-0 text-dashboard-accent"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <span className="mr-2 rounded-full border border-white/10 px-2 py-1 text-[10px] font-medium text-slate-400">
+                            {isTV ? "SERIES" : "FILM"}
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="px-4 py-5 text-sm text-slate-400">
+                No matching titles found. Try another name.
+              </div>
+            )}
           </div>
         )}
       </div>

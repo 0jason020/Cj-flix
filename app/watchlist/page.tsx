@@ -5,7 +5,7 @@ import WatchListClient from "@/components/watchlist/WatchListClient";
 export const metadata: Metadata = {
   ...createPageMetadata(
     "My List",
-    "Manage your saved movies and TV shows on CJ FLIX.",
+    "Manage your saved movies and TV shows on Craft Movies.",
     "/watchlist"
   ),
   robots: {

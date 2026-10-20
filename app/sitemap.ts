@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { api } from "@/lib/api";
+import { SITE_URL } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://cjflix.com'
+  const baseUrl = SITE_URL
 
   // Static pages with SEO priority
   const staticPages: MetadataRoute.Sitemap = [
@@ -36,22 +37,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dynamicEntries: MetadataRoute.Sitemap = []
 
   try {
-    const [moviesRes, seriesRes] = await Promise.all([
-      api.getTrending("movie", "week"),
-      api.getTrending("tv", "week"),
+    const pages = [1, 2, 3]
+    const [moviePages, seriesPages] = await Promise.all([
+      Promise.all(pages.map((page) => api.getTrending("movie", "week", page))),
+      Promise.all(pages.map((page) => api.getTrending("tv", "week", page))),
     ])
 
-    if (moviesRes.results) {
-      const movieEntries = moviesRes.results.slice(0, 50).map((movie) => ({
+    const movies = moviePages.flatMap((result) => result.results ?? [])
+    const series = seriesPages.flatMap((result) => result.results ?? [])
+
+    if (movies.length) {
+      const movieEntries = movies.map((movie) => ({
         url: `${baseUrl}/movie/${movie.id}`,
+        changeFrequency: "weekly" as const,
         priority: 0.6,
       }))
       dynamicEntries.push(...movieEntries)
     }
 
-    if (seriesRes.results) {
-      const seriesEntries = seriesRes.results.slice(0, 50).map((show) => ({
+    if (series.length) {
+      const seriesEntries = series.map((show) => ({
         url: `${baseUrl}/series/${show.id}`,
+        changeFrequency: "weekly" as const,
         priority: 0.6,
       }))
       dynamicEntries.push(...seriesEntries)

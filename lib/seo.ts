@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 
+export const SITE_NAME = "Craft Movies";
+export const SITE_URL = "https://cjflix.com";
+
 // SEO Metadata builder helper
 export const createPageMetadata = (
   title: string,
@@ -7,11 +10,10 @@ export const createPageMetadata = (
   path: string = "",
   ogImage?: string
 ): Metadata => {
-  const baseUrl = "https://cjflix.com";
-  const url = `${baseUrl}${path}`;
+  const url = `${SITE_URL}${path}`;
 
   return {
-    title: `${title} | CJ FLIX`,
+    title: `${title} | ${SITE_NAME}`,
     description,
     keywords: [
       "movies",
@@ -23,14 +25,14 @@ export const createPageMetadata = (
       "video streaming",
       title.toLowerCase(),
     ],
-    authors: [{ name: "CJ FLIX" }],
-    creator: "CJ FLIX",
+    authors: [{ name: SITE_NAME }],
+    creator: SITE_NAME,
     formatDetection: {
       email: false,
       telephone: false,
       address: false,
     },
-    metadataBase: new URL(baseUrl),
+    metadataBase: new URL(SITE_URL),
     alternates: {
       canonical: url,
     },
@@ -38,8 +40,8 @@ export const createPageMetadata = (
       type: "website",
       locale: "en_US",
       url,
-      siteName: "CJ FLIX",
-      title: `${title} | CJ FLIX`,
+      siteName: SITE_NAME,
+      title: `${title} | ${SITE_NAME}`,
       description,
       images: ogImage
         ? [
@@ -53,10 +55,9 @@ export const createPageMetadata = (
         : undefined,
     },
     twitter: {
-      card: "summary_large_image",
-      title: `${title} | CJ FLIX`,
+      card: ogImage ? "summary_large_image" : "summary",
+      title: `${title} | ${SITE_NAME}`,
       description,
-      creator: "@cjflix",
       images: ogImage ? [ogImage] : undefined,
     },
     robots: {

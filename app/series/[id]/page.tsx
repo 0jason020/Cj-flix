@@ -5,6 +5,7 @@ import { PageLoading } from "@/components/loading/PageLoading";
 import InfoNotFound from "@/components/not-found/InfoNotFound";
 import { api } from "@/lib/api";
 import { TMDBTVDetail } from "@/lib/types";
+import { SITE_URL } from "@/lib/seo";
 
 interface SeriesDetailsPageProps {
   params: Promise<{
@@ -34,6 +35,7 @@ export async function generateMetadata({
       description:
         seriesData.overview ||
         "Stream this series on CJ-FLIX. Find trending, top-rated, and new releases.",
+      alternates: { canonical: `${SITE_URL}/series/${parsedId}` },
       openGraph: {
         title: seriesData.name,
         description: seriesData.overview || "Watch on CJ-FLIX",
@@ -52,6 +54,7 @@ export async function generateMetadata({
     return {
       title: "Series | CJ-FLIX",
       description: "Browse all series available on CJ-FLIX.",
+      alternates: { canonical: `${SITE_URL}/series/${(await params).id}` },
     };
   }
 }

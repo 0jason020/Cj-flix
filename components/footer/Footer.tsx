@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import Logo from "../navbar/Logo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -82,13 +83,24 @@ const Footer = () => {
                 aria-hidden="true"
               />
               <span>
-                © {currentYear} <span className="font-semibold text-white">CJ FLIX</span>
+                © {currentYear} <span className="font-semibold text-white">Craft Movies</span>
               </span>
             </div>
 
             <div className="space-y-2 text-center text-xs text-mist/70 sm:text-right">
               <p>Powered by TMDB API • Next.js • Tailwind CSS</p>
-              <p>All content provided by The Movie Database (TMDB)</p>
+              <p>
+                This product uses the TMDB API but is not endorsed or certified
+                by TMDB.
+              </p>
+              <a
+                href="https://www.themoviedb.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block underline underline-offset-4 transition hover:text-white"
+              >
+                Movie data and artwork provided by TMDB
+              </a>
             </div>
           </div>
         </div>
@@ -100,14 +112,14 @@ const Footer = () => {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "CJ FLIX",
-              "description": "Stream unlimited movies and TV series",
-              "url": "https://cjflix.com",
+              "name": SITE_NAME,
+              "description": "Discover popular movies, trending TV shows, new releases, and top-rated stories.",
+              "url": SITE_URL,
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": {
                   "@type": "EntryPoint",
-                  "urlTemplate": "https://cjflix.com/search?q={search_term_string}"
+                  "urlTemplate": `${SITE_URL}/search?q={search_term_string}`
                 },
                 "query-input": "required name=search_term_string"
               }

@@ -3,16 +3,16 @@ import { api } from './api';
 import { TMDBTrendingResponse, TMDBGenresResponse, TMDBSearchResponse } from './types';
 
 // Custom hooks for TMDB API
-export function useTrending(mediaType: 'all' | 'movie' | 'tv' = 'all', timeWindow: 'day' | 'week' = 'day', page = 1) {
+export function useTrending(mediaType: 'all' | 'movie' | 'tv' = 'all', timeWindow: 'day' | 'week' = 'day', page = 1, enabled = true) {
   return useSWR<TMDBTrendingResponse>(
-    `${mediaType}/${timeWindow}/${page}`,
+    enabled ? `${mediaType}/${timeWindow}/${page}` : null,
     () => api.getTrending(mediaType, timeWindow, page),
     { revalidateOnFocus: false }
   );
 }
 
-export function usePopular(mediaType: 'movie' | 'tv', page = 1) {
-  return useCategoryData(mediaType, 'popular', page);
+export function usePopular(mediaType: 'movie' | 'tv', page = 1, enabled = true) {
+  return useCategoryData(mediaType, 'popular', page, enabled);
 }
 
 export function useTopRated(mediaType: 'movie' | 'tv', page = 1) {
@@ -42,10 +42,10 @@ export function useDiscover(mediaType: 'movie' | 'tv', params: {
   year?: number;
   language?: string;
   minRating?: number;
-} = {}) {
+} = {}, enabled = true) {
   const key = `discover/${mediaType}/${JSON.stringify(params)}`;
   return useSWR<TMDBTrendingResponse>(
-    key,
+    enabled ? key : null,
     () => api.discover(mediaType, params),
     { revalidateOnFocus: false }
   );
@@ -63,12 +63,13 @@ export function useSearch(query: string, mediaType?: 'movie' | 'tv', page = 1) {
 export function useCategoryData(
   mediaType: 'movie' | 'tv', 
   category: 'popular' | 'top_rated' | 'now_playing' | 'upcoming' | 'on_the_air' | 'airing_today', 
-  page = 1
+  page = 1,
+  enabled = true
 ) {
   const key = `category/${mediaType}/${category}/${page}`;
   
   return useSWR<TMDBTrendingResponse>(
-    key,
+    enabled ? key : null,
     () => {
       switch (category) {
         case 'popular':

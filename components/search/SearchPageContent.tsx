@@ -251,14 +251,7 @@ const SearchPageContent = () => {
       {/* Search Bar Section - Static */}
       <SearchBar onTyping={handleSearchInput} initialValue={typedValue} />
 
-      {/* Filter Section - Static wrapper, async content inside */}
-      <FilterWrapper
-        onResultsChange={handleFilterResults}
-        onLoadingChange={handleFilterLoading}
-        onErrorChange={handleFilterError}
-      />
-
-      {/* Async content section with its own Suspense boundary */}
+      {/* Show matching titles immediately below search, before browse filters. */}
       <Suspense fallback={<PageLoading>Loading content...</PageLoading>}>
         <AsyncResultsSection
           isLoading={isLoading}
@@ -268,6 +261,13 @@ const SearchPageContent = () => {
           statusMessage={statusMessage}
         />
       </Suspense>
+
+      {/* Filter Section - Static wrapper, async content inside */}
+      <FilterWrapper
+        onResultsChange={handleFilterResults}
+        onLoadingChange={handleFilterLoading}
+        onErrorChange={handleFilterError}
+      />
     </div>
   );
 };

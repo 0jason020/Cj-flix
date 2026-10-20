@@ -48,6 +48,42 @@ export interface TMDBMovieResponse {
   total_results: number
 }
 
+export interface TMDBMovieVideo {
+  id: string;
+  key: string;
+  name: string;
+  site: string;
+  type: string;
+  official: boolean;
+  published_at: string;
+}
+
+export interface TMDBMovieVideosResponse {
+  id: number;
+  results: TMDBMovieVideo[];
+}
+
+export interface TMDBWatchProvider {
+  logo_path: string;
+  provider_id: number;
+  provider_name: string;
+  display_priority: number;
+}
+
+export interface TMDBWatchProviderRegion {
+  link: string;
+  flatrate?: TMDBWatchProvider[];
+  rent?: TMDBWatchProvider[];
+  buy?: TMDBWatchProvider[];
+  free?: TMDBWatchProvider[];
+  ads?: TMDBWatchProvider[];
+}
+
+export interface TMDBMovieWatchProvidersResponse {
+  id: number;
+  results: Record<string, TMDBWatchProviderRegion>;
+}
+
 export interface TMDBTVResponse {
   page: number
   results: TMDBTVShow[]
